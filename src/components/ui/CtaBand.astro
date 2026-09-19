@@ -1,0 +1,61 @@
+---
+import Button from './Button.astro';
+
+/**
+ * Bottom-of-page call to action used by Work, Services, Studio and Article.
+ * Centered by default (Work/Studio/Article), left-aligned with copy on Services.
+ */
+interface Props {
+  heading?: string | null;
+  copy?: string | null;
+  buttonLabel?: string | null;
+  href: string;
+  align?: 'center' | 'left';
+  alt?: boolean;
+  bordered?: boolean;
+}
+const { heading, copy, buttonLabel, href, align = 'center', alt = true, bordered = true } = Astro.props;
+---
+
+{heading && (
+  <section
+    class:list={[
+      'cta-band gutter',
+      `cta-band--${align}`,
+      { 'section--alt': alt, 'cta-band--bordered': bordered },
+    ]}
+    data-reveal
+  >
+    <h2 class="display cta-band__heading">{heading}</h2>
+    {copy && <p class="lead cta-band__copy">{copy}</p>}
+    <Button href={href} size="lg" arrow="→" cursor="Start" cursorLight>
+      {buttonLabel || 'Start a Project'}
+    </Button>
+  </section>
+)}
+
+<style>
+  .cta-band {
+    padding-block: var(--space-20);
+  }
+  .cta-band--bordered {
+    border-top: 1px solid var(--border);
+  }
+  .cta-band--center {
+    text-align: center;
+  }
+  .cta-band__heading {
+    font-size: var(--display-sm);
+    margin-bottom: var(--space-6);
+  }
+  .cta-band--left .cta-band__heading {
+    margin-bottom: var(--space-4);
+  }
+  .cta-band__copy {
+    max-width: 480px;
+    margin-bottom: var(--space-8);
+  }
+  .cta-band--center .cta-band__copy {
+    margin-inline: auto;
+  }
+</style>

@@ -1,0 +1,14 @@
+---
+/** Mono uppercase label with the design's leading em dash. */
+interface Props {
+  text?: string | null;
+  dash?: boolean;
+  class?: string;
+  as?: 'span' | 'p' | 'div';
+}
+const { text, dash = true, class: className = '', as: Tag = 'span' }: Props = Astro.props;
+---
+
+{text && (
+  <Tag class:list={['eyebrow', className]}>{dash ? `— ${text}` : text}</Tag>
+)}

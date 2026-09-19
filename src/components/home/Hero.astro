@@ -1,0 +1,445 @@
+---
+import type { Homepage, SiteSettings } from '@/lib/sanity/types';
+import { resolveNavHref, routes } from '@/lib/routes';
+import { highlightWords, lines } from '@/lib/sanity/helpers';
+import { highlightCode } from '@/lib/highlight';
+import { hasImage, imageUrl } from '@/lib/sanity/image';
+import Button from '@/components/ui/Button.astro';
+
+interface Props {
+  hero: NonNullable<Homepage['hero']>;
+  settings: SiteSettings;
+}
+const { hero, settings } = Astro.props;
+
+const titleLines = lines(hero.title);
+const visual = hero.visual;
+const showVisual = visual?.enabled !== false;
+const codeHtml = visual?.codeSnippet ? highlightCode(visual.codeSnippet) : '';
+const metric = visual?.metricCard;
+const bars = metric?.bars?.length ? metric.bars : [];
+const stack = visual?.stackTechnologies ?? [];
+const availabilityText = hero.availabilityText || settings.availability?.label || '';
+const statusClass =
+  settings.availability?.status === 'limited'
+    ? 'status__dot--busy'
+    : settings.availability?.status === 'unavailable'
+      ? 'status__dot--closed'
+      : '';
+const primary = hero.primaryCta ? { label: hero.primaryCta.label ?? 'Start a Project', href: resolveNavHref(hero.primaryCta) } : { label: 'Start a Project', href: routes.start };
+const secondary = hero.secondaryCta ? { label: hero.secondaryCta.label ?? 'View Work', href: resolveNavHref(hero.secondaryCta) } : null;
+
+const bgVideo = hero.backgroundVideo;
+const videoSrc = bgVideo?.enabled
+  ? bgVideo.fileUrl || bgVideo.externalFile?.replace(/^file@/, '') || bgVideo.url || null
+  : null;
+const videoOpacity = Math.min(100, Math.max(5, bgVideo?.opacity ?? 40)) / 100;
+const videoPoster = bgVideo?.poster && hasImage(bgVideo.poster) ? imageUrl(bgVideo.poster, { width: 1920, height: 1080, quality: 70 }) : undefined;
+---
+
+<section class="hero" data-hero>
+  {videoSrc && (
+    <div class="hero__video" style={`--hero-video-opacity:${videoOpacity}`} aria-hidden="true" data-hero-video>
+      <video
+        src={videoSrc}
+        poster={videoPoster}
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+      ></video>
+      <div class="hero__video-shade"></div>
+    </div>
+  )}
+  {showVisual && (
+    <div class="hero__visual animate-fade-in" aria-hidden="true">
+      <div class="hero__grid"></div>
+      <div class="hero__vline hero__vline--50"></div>
+      <div class="hero__vline hero__vline--75"></div>
+      <div class="hero__scan animate-scan"></div>
+
+      {codeHtml && (
+        <div class="hero__card hero__card--code glass-card animate-float-a">
+          <div class="hero__dots">
+            <span style="background:#c0392b"></span>
+            <span style="background:#e67e22"></span>
+            <span style="background:#27ae60"></span>
+          </div>
+          <pre class="hero__code"><code set:html={codeHtml} /></pre>
+        </div>
+      )}
+
+      {metric?.value && (
+        <div class="hero__card hero__card--metric glass-card animate-float-b">
+          {metric.label && <div class="hero__card-label">{metric.label}</div>}
+          <div class="hero__metric-value">{metric.value}</div>
+          {metric.caption && <div class="hero__metric-caption">{metric.caption}</div>}
+          {bars.length > 0 && (
+            <Fragment>
+              <div class="hero__rule"></div>
+              <div class="hero__bars">
+                {bars.map((h, i) => (
+                  <span class:list={['hero__bar', { 'hero__bar--accent': i === bars.length - 1 }]} style={`height:${Math.round(h * 0.42)}px`}></span>
+                ))}
+              </div>
+            </Fragment>
+          )}
+        </div>
+      )}
+
+      {stack.length > 0 && (
+        <div class="hero__card hero__card--stack glass-card animate-float-a">
+          <div class="hero__card-label">{visual?.stackLabel || 'Stack'}</div>
+          <div class="tag-list">
+            {stack.map((t) => <span class="tag tag--light">{t.name}</span>)}
+          </div>
+        </div>
+      )}
+
+      <div class="hero__vignette"></div>
+      {visual?.watermark && <div class="hero__watermark">{visual.watermark}</div>}
+    </div>
+  )}
+
+  <div class="hero__content" data-hero-content>
+    {hero.eyebrow && (
+      <p class="hero__eyebrow animate-fade-up" style="animation-delay:0.1s">
+        <span class="hero__eyebrow-line" aria-hidden="true"></span>
+        <span class="eyebrow">{hero.eyebrow}</span>
+      </p>
+    )}
+
+    <h1 class="hero__title animate-fade-up" style="animation-delay:0.2s">
+      {titleLines.map((line, i) => (
+        <Fragment>
+          {highlightWords(line, hero.highlightedWords).map((seg) =>
+            seg.highlighted ? <em class="accent">{seg.text}</em> : <Fragment>{seg.text}</Fragment>,
+          )}
+          {i < titleLines.length - 1 && <br />}
+        </Fragment>
+      ))}
+    </h1>
+
+    {hero.copy && <p class="hero__copy animate-fade-up" style="animation-delay:0.3s">{hero.copy}</p>}
+
+    <div class="hero__ctas animate-fade-up" style="animation-delay:0.4s">
+      <Button href={primary.href} arrow="→" cursor="Start" cursorLight>{primary.label}</Button>
+      {secondary && (
+        <Button href={secondary.href} variant="secondary" arrow="↓" cursor="Work">{secondary.label}</Button>
+      )}
+    </div>
+
+    {availabilityText && (
+      <p class="status hero__status animate-fade-up" style="animation-delay:0.5s">
+        <span class:list={['status__dot status__dot--pulse', statusClass]} aria-hidden="true"></span>
+        {availabilityText}
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin-top: calc(-1 * var(--header-h));
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg);
+  }
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+  .hero__video video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: var(--hero-video-opacity, 0.4);
+    filter: saturate(0.6) contrast(1.05);
+  }
+  .hero__video-shade {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(var(--bg-rgb) / 0.55) 0%, rgba(var(--bg-rgb) / 0.15) 40%, rgba(var(--bg-rgb) / 0.85) 100%),
+      radial-gradient(ellipse at 20% 50%, rgba(var(--bg-rgb) / 0.7), transparent 60%);
+  }
+  .hero__visual {
+    position: absolute;
+    inset: 0;
+    animation-delay: 0.2s;
+  }
+  .hero__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(var(--fg-rgb) / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--fg-rgb) / 0.03) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+  }
+  .hero__vline {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(var(--fg-rgb) / 0.04);
+  }
+  .hero__vline--50 { left: 50%; }
+  .hero__vline--75 { left: 75%; background: rgba(var(--fg-rgb) / 0.03); }
+  .hero__scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, transparent 40%, rgba(var(--accent-rgb) / 0.5) 60%, rgba(var(--accent-rgb) / 0.2) 80%, transparent 100%);
+  }
+
+  .hero__card {
+    position: absolute;
+    padding: 18px 22px;
+  }
+  .hero__card--code {
+    top: 18%;
+    right: 18%;
+    max-width: 300px;
+  }
+  .hero__card--metric {
+    top: 50%;
+    right: 10%;
+    transform: translateY(-50%);
+    min-width: 200px;
+    padding: 22px 26px;
+    backdrop-filter: blur(16px);
+  }
+  .hero__card--stack {
+    bottom: 18%;
+    right: 22%;
+    padding: 16px 20px;
+    /* Size to the tags so they sit on one line; wrap only when the viewport is narrow. */
+    width: max-content;
+    max-width: min(420px, 34vw);
+  }
+  .hero__dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .hero__dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+  .hero__code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1.75;
+    color: var(--color-muted);
+    margin: 0;
+    white-space: pre;
+  }
+  .hero__code :global(.tok-keyword) { color: var(--color-accent-2); }
+  .hero__code :global(.tok-string) { color: var(--color-accent); }
+  .hero__code :global(.tok-ident) { color: var(--color-fg-2); }
+  .hero__code :global(.tok-comment) { color: var(--color-muted); }
+  .hero__code :global(.tok-literal) { color: var(--color-success); }
+  .hero__card-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 12px;
+  }
+  .hero__card--stack .hero__card-label {
+    margin-bottom: 10px;
+  }
+  .hero__metric-value {
+    font-family: var(--font-serif);
+    font-size: 42px;
+    letter-spacing: var(--tracking-display);
+    line-height: 1;
+    color: var(--color-fg);
+  }
+  .hero__metric-caption {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-accent);
+    margin-top: 8px;
+  }
+  .hero__rule {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+  .hero__bars {
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+  }
+  .hero__bar {
+    display: block;
+    width: 5px;
+    background: rgba(var(--fg-rgb) / 0.12);
+    border-radius: var(--radius-xs);
+  }
+  .hero__bar--accent {
+    background: var(--color-accent);
+  }
+  .hero__card--stack .tag {
+    font-size: var(--text-xs);
+    padding: 3px 9px;
+  }
+  .hero__vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(var(--bg-rgb) / 0.92) 0%, rgba(var(--bg-rgb) / 0.6) 45%, rgba(var(--bg-rgb) / 0.1) 70%, transparent 100%);
+    pointer-events: none;
+  }
+  .hero__watermark {
+    position: absolute;
+    bottom: 24px;
+    right: 32px;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: rgba(var(--fg-rgb) / 0.1);
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: var(--z-raised);
+    padding: clamp(80px, 10vw, 140px) var(--gutter);
+    padding-top: calc(clamp(80px, 10vw, 140px) + var(--header-h));
+    max-width: 680px;
+    will-change: transform;
+  }
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: var(--space-12);
+  }
+  .hero__eyebrow-line {
+    width: 24px;
+    height: 1px;
+    background: rgba(var(--accent-rgb) / 0.5);
+    flex-shrink: 0;
+  }
+  .hero__title {
+    font-family: var(--font-serif);
+    font-size: var(--display-hero);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    color: var(--color-fg);
+    margin-bottom: var(--space-8);
+  }
+  .hero__copy {
+    font-size: var(--text-2xl);
+    line-height: 1.75;
+    color: var(--color-fg-2);
+    max-width: 460px;
+    margin-bottom: 52px;
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: var(--space-16);
+  }
+  .hero__status {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+  }
+
+  @media (max-width: 1279px) {
+    .hero__card--code { right: 8%; top: 16%; }
+    .hero__card--metric { right: 6%; }
+    .hero__card--stack { right: 14%; bottom: 14%; max-width: min(420px, 44vw); }
+  }
+  @media (max-width: 1023px) {
+    .hero__card--code { display: none; }
+    .hero__card--metric { top: 22%; right: 6%; transform: none; }
+    .hero__card--stack { bottom: 12%; right: 6%; max-width: 220px; }
+    .hero__vignette {
+      background: linear-gradient(to right, rgba(var(--bg-rgb) / 0.94) 0%, rgba(var(--bg-rgb) / 0.75) 55%, rgba(var(--bg-rgb) / 0.3) 100%);
+    }
+  }
+  @media (max-width: 767px) {
+    .hero {
+      min-height: auto;
+      align-items: flex-start;
+    }
+    .hero__video video { opacity: calc(var(--hero-video-opacity, 0.4) * 0.7); }
+    .hero__card { display: none; }
+    .hero__vignette { display: none; }
+    .hero__content {
+      padding: calc(var(--space-16) + var(--header-h)) var(--gutter) var(--space-20);
+      max-width: none;
+    }
+    .hero__eyebrow { margin-bottom: var(--space-8); }
+    .hero__copy { margin-bottom: var(--space-8); }
+    .hero__ctas { margin-bottom: var(--space-10); }
+    .hero__ctas :global(.btn) { flex: 1 1 auto; }
+  }
+</style>
+
+<script>
+  /**
+   * Background video: paused (poster only) for reduced-motion visitors, and
+   * paused whenever the hero is scrolled out of view to save CPU/battery.
+   */
+  function initHeroVideo() {
+    const video = document.querySelector<HTMLVideoElement>('[data-hero-video] video');
+    if (!video) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      video.removeAttribute('autoplay');
+      video.pause();
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.05 },
+    );
+    io.observe(video);
+    document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
+  }
+
+  /** Subtle hero parallax: content drifts at 10% of scroll. Skipped for reduced motion. */
+  function initHeroParallax() {
+    const content = document.querySelector<HTMLElement>('[data-hero-content]');
+    if (!content || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let ticking = false;
+    const update = () => {
+      content.style.transform = `translateY(${window.scrollY * 0.1}px)`;
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('astro:before-swap', () => window.removeEventListener('scroll', onScroll), { once: true });
+  }
+  document.addEventListener('astro:page-load', () => {
+    initHeroVideo();
+    initHeroParallax();
+  });
+</script>

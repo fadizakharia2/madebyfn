@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import ServicesAccordion from '@/components/services/ServicesAccordion.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import { getGlobals, getServices, getServicesPage } from '@/lib/sanity/loaders';
+import { breadcrumbJsonLd, buildMeta } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+
+const [{ settings }, page, services] = await Promise.all([getGlobals(), getServicesPage(), getServices()]);
+const meta = buildMeta({ settings, seo: page.seo, title: page.title ?? 'Services', description: page.intro, path: routes.services });
+const jsonLd = [
+  breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: page.title ?? 'Services', path: routes.services }]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: services.map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: { '@type': 'Service', name: s.name, description: s.shortDescription ?? undefined, provider: { '@id': `${settings.siteUrl ?? ''}/#organization` } },
+    })),
+  },
+];
+---
+
+<BaseLayout meta={meta} jsonLd={jsonLd}>
+  <PageHeader eyebrow={page.eyebrow} title={page.title} intro={page.intro} />
+  <ServicesAccordion services={services} variant="page" labels={page} />
+  <CtaBand heading={page.cta?.heading} copy={page.cta?.copy} buttonLabel={page.cta?.buttonLabel} href={routes.start} align="left" />
+</BaseLayout>

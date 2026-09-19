@@ -1,0 +1,23 @@
+# build output
+dist/
+.output/
+.vercel/
+.astro/
+
+# dependencies
+node_modules/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# sanity
+.sanity/
+studio-dist/
+seed.ndjson
+
+# logs / os
+npm-debug.log*
+.DS_Store
+Thumbs.db

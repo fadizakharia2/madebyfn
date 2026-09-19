@@ -1,0 +1,265 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+import ArticleCard from '@/components/insights/ArticleCard.astro';
+import NewsletterForm from '@/components/forms/NewsletterForm';
+import { getArticleCategories, getArticles, getGlobals, getInsightsPage } from '@/lib/sanity/loaders';
+import { breadcrumbJsonLd, buildMeta } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+import { estimateReadingTime, formatDateCard } from '@/lib/sanity/helpers';
+
+const [{ settings }, page, articles, categories] = await Promise.all([getGlobals(), getInsightsPage(), getArticles(), getArticleCategories()]);
+
+const featured = page.featuredArticle ?? null;
+const usedCategories = categories.filter((c) => articles.some((a) => a.category?._id === c._id));
+const meta = buildMeta({ settings, seo: page.seo, title: page.title ?? 'Insights', description: page.intro, path: routes.insights, image: featured?.coverImage });
+const jsonLd = [breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: page.title ?? 'Insights', path: routes.insights }])];
+const newsletter = settings.newsletter;
+---
+
+<BaseLayout meta={meta} jsonLd={jsonLd}>
+  <PageHeader eyebrow={page.eyebrow} title={page.title} intro={page.intro} />
+
+  {usedCategories.length > 0 && (
+    <div class="cats gutter" data-reveal role="group" aria-label="Filter articles by category" data-insight-filters>
+      <button type="button" class="chip" aria-pressed="true" data-category="">{page.allLabel || 'All'}</button>
+      {usedCategories.map((c) => (
+        <button type="button" class="chip" aria-pressed="false" data-category={c.slug}>{c.title}</button>
+      ))}
+    </div>
+  )}
+
+  {featured && (
+    <a href={routes.article(featured.slug)} class="featured" data-cursor="Read" data-insight-featured>
+      <div class="featured__media">
+        <SanityPicture image={featured.coverImage} aspect={3 / 2} widths={[640, 960, 1280]} sizes="(max-width: 1023px) 100vw, 50vw" priority filter="brightness(0.55) saturate(0.7)" />
+        <span class="featured__badge">{page.featuredLabel || 'Featured'}</span>
+      </div>
+      <div class="featured__body">
+        <span class="featured__cat">{featured.category?.title}</span>
+        <h2 class="featured__title">{featured.title}</h2>
+        {featured.excerpt && <p class="featured__excerpt">{featured.excerpt}</p>}
+        <span class="featured__meta">
+          <span>{featured.author?.name}</span>
+          <span class="featured__sep" aria-hidden="true"></span>
+          <span>{formatDateCard(featured.publishedAt)}</span>
+          <span class="featured__sep" aria-hidden="true"></span>
+          <span>{featured.readingTime ?? estimateReadingTime(featured.body)} min read</span>
+        </span>
+      </div>
+    </a>
+  )}
+
+  <div class="gutter">
+    <ul class="agrid" data-insight-grid aria-live="polite">
+      {articles.map((a) => (
+        <li class="agrid__item" data-insight-item data-category={a.category?.slug ?? ''} data-featured={featured && a._id === featured._id ? 'true' : 'false'}>
+          <ArticleCard article={a} />
+        </li>
+      ))}
+    </ul>
+    <p class="agrid__empty" data-insight-empty hidden>No articles in this category yet.</p>
+  </div>
+
+  {page.showNewsletter !== false && newsletter?.enabled && newsletter.heading && (
+    <section class="insights-news gutter section--alt" data-reveal>
+      <div class="insights-news__inner">
+        <div>
+          <p class="insights-news__heading">{newsletter.heading}</p>
+          {newsletter.copy && <p class="insights-news__copy">{newsletter.copy}</p>}
+        </div>
+        <NewsletterForm
+          client:visible
+          placeholder={newsletter.placeholder ?? 'you@company.com'}
+          buttonLabel={newsletter.buttonLabel ?? 'Subscribe'}
+          successMessage={newsletter.successMessage ?? 'You are subscribed.'}
+          duplicateMessage={newsletter.duplicateMessage ?? undefined}
+          privacyNote={newsletter.privacyNote ?? undefined}
+          source="insights"
+        />
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding-block: var(--space-6);
+    border-bottom: 1px solid var(--border);
+    background: var(--color-bg-2);
+  }
+  .featured {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background var(--dur-fast) var(--ease-standard);
+  }
+  .featured:hover {
+    background: var(--color-bg-2);
+  }
+  .featured[hidden] {
+    display: none;
+  }
+  .featured__media {
+    position: relative;
+    height: 480px;
+    overflow: hidden;
+  }
+  .featured__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out-expo);
+  }
+  .featured:hover .featured__media :global(img) {
+    transform: scale(1.03);
+  }
+  .featured__badge {
+    position: absolute;
+    top: var(--space-6);
+    left: var(--space-6);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: rgba(var(--bg-rgb) / 0.6);
+    border-radius: var(--radius-xs);
+  }
+  .featured__body {
+    padding: var(--space-16) var(--gutter);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-left: 1px solid var(--border);
+  }
+  .featured__cat {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    margin-bottom: var(--space-5);
+  }
+  .featured__title {
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 3vw, 38px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.2;
+    margin-bottom: var(--space-5);
+  }
+  .featured__excerpt {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    margin-bottom: var(--space-8);
+  }
+  .featured__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-mono);
+  }
+  .featured__sep {
+    width: 1px;
+    height: 12px;
+    background: var(--border-strong);
+  }
+  .agrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+  .agrid__item {
+    background: var(--color-bg);
+  }
+  .agrid__item[hidden] {
+    display: none;
+  }
+  .agrid__empty {
+    padding: var(--space-20) 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-md);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+  }
+  .insights-news {
+    padding-block: var(--space-20);
+    border-top: 1px solid var(--border);
+  }
+  .insights-news__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: center;
+    max-width: 1100px;
+  }
+  .insights-news__heading {
+    font-family: var(--font-serif);
+    font-size: var(--display-sm);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.1;
+    margin-bottom: var(--space-4);
+  }
+  .insights-news__copy {
+    font-size: var(--text-xl);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    max-width: 440px;
+  }
+  @media (max-width: 1023px) {
+    .featured { grid-template-columns: 1fr; }
+    .featured__media { height: 320px; }
+    .featured__body { border-left: 0; padding: var(--space-10) var(--gutter); }
+    .insights-news__inner { grid-template-columns: 1fr; gap: var(--space-8); }
+  }
+  @media (max-width: 767px) {
+    .agrid { grid-template-columns: 1fr; }
+    .featured__meta { flex-wrap: wrap; gap: var(--space-3); }
+  }
+</style>
+
+<script>
+  function initInsightFilters() {
+    const root = document.querySelector<HTMLElement>('[data-insight-filters]');
+    const grid = document.querySelector<HTMLElement>('[data-insight-grid]');
+    const empty = document.querySelector<HTMLElement>('[data-insight-empty]');
+    const featured = document.querySelector<HTMLElement>('[data-insight-featured]');
+    if (!root || !grid || !empty) return;
+    const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-insight-item]'));
+
+    const apply = (category: string) => {
+      let visible = 0;
+      items.forEach((item) => {
+        const isFeatured = item.dataset.featured === 'true';
+        // With "All" selected the featured article shows in the hero panel, not the grid.
+        const match = category ? item.dataset.category === category : !isFeatured;
+        item.hidden = !match;
+        if (match) visible += 1;
+      });
+      if (featured) featured.hidden = Boolean(category);
+      empty.hidden = visible > 0 || (!category && Boolean(featured));
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-category]').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        root.querySelectorAll<HTMLButtonElement>('[data-category]').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        apply(chip.dataset.category ?? '');
+      });
+    });
+    apply('');
+  }
+  document.addEventListener('astro:page-load', initInsightFilters);
+</script>

@@ -1,0 +1,13 @@
+---
+import type { BlockCta } from '@/lib/sanity/types';
+import { resolveNavHref, routes } from '@/lib/routes';
+import CtaBand from '@/components/ui/CtaBand.astro';
+
+interface Props {
+  block: BlockCta;
+}
+const { block } = Astro.props;
+const href = block.link ? resolveNavHref(block.link) : routes.start;
+---
+
+<CtaBand heading={block.heading} copy={block.body} buttonLabel={block.link?.label ?? 'Start a Project'} href={href} align="left" />

@@ -1,0 +1,78 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/home/Hero.astro';
+import StatsStrip from '@/components/home/StatsStrip.astro';
+import SelectedWork from '@/components/home/SelectedWork.astro';
+import FeaturedCase from '@/components/home/FeaturedCase.astro';
+import ServicesAccordion from '@/components/services/ServicesAccordion.astro';
+import Developers from '@/components/home/Developers.astro';
+import TechEcosystem from '@/components/home/TechEcosystem.astro';
+import Process from '@/components/home/Process.astro';
+import WhyTwoDevs from '@/components/home/WhyTwoDevs.astro';
+import Testimonials from '@/components/home/Testimonials';
+import InsightsPreview from '@/components/home/InsightsPreview.astro';
+import FinalCta from '@/components/home/FinalCta.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import { getGlobals, getHomepage, getTechnologies } from '@/lib/sanity/loaders';
+import { buildMeta } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+
+const [{ settings }, home, technologies] = await Promise.all([getGlobals(), getHomepage(), getTechnologies()]);
+
+const show = (key: string) => home.visibility?.[key] !== false;
+const meta = buildMeta({ settings, seo: home.seo, path: '/' });
+
+const testimonialSlides = (home.testimonials?.items ?? []).map((t) => ({
+  id: t._id,
+  quote: t.quote,
+  person: t.person,
+  role: t.role,
+  company: t.company,
+  projectName: t.project?.name ?? null,
+  projectHref: t.project?.slug ? routes.project(t.project.slug) : null,
+}));
+---
+
+<BaseLayout meta={meta}>
+  {home.hero && <Hero hero={home.hero} settings={settings} />}
+
+  {show('stats') && home.stats?.items && home.stats.items.length > 0 && (
+    <StatsStrip items={home.stats.items} note={home.stats.note} />
+  )}
+
+  {show('selectedWork') && home.selectedWork?.projects && home.selectedWork.projects.length > 0 && (
+    <SelectedWork section={home.selectedWork} projects={home.selectedWork.projects} />
+  )}
+
+  {show('featuredCase') && home.featuredCase && <FeaturedCase section={home.featuredCase} />}
+
+  {show('services') && home.services?.items && home.services.items.length > 0 && (
+    <section class="section section--bordered" id="services">
+      <SectionHeader eyebrow={home.services.eyebrow} heading={home.services.heading} linkLabel={home.services.linkLabel} linkHref={routes.services} />
+      <ServicesAccordion services={home.services.items} variant="home" />
+    </section>
+  )}
+
+  {show('team') && home.team?.developers && home.team.developers.length > 0 && (
+    <Developers section={home.team} developers={home.team.developers} />
+  )}
+
+  {show('technology') && home.technology && <TechEcosystem section={home.technology} technologies={technologies} />}
+
+  {show('process') && home.process && <Process section={home.process} />}
+
+  {show('model') && home.model && <WhyTwoDevs section={home.model} studioName={settings.studioName} />}
+
+  {show('testimonials') && home.testimonials && testimonialSlides.length > 0 && (
+    <section class="section section--alt section--bordered" id="testimonials">
+      <SectionHeader eyebrow={home.testimonials.eyebrow} heading={home.testimonials.heading} />
+      <Testimonials client:visible items={testimonialSlides} />
+    </section>
+  )}
+
+  {show('insights') && home.insights?.articles && home.insights.articles.length > 0 && (
+    <InsightsPreview section={home.insights} articles={home.insights.articles} />
+  )}
+
+  {show('finalCta') && home.finalCta && <FinalCta section={home.finalCta} settings={settings} />}
+</BaseLayout>

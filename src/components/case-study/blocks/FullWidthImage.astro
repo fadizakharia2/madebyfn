@@ -1,0 +1,42 @@
+---
+import type { BlockFullWidthImage } from '@/lib/sanity/types';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+interface Props {
+  block: BlockFullWidthImage;
+}
+const { block } = Astro.props;
+const tall = block.height === 'tall';
+---
+
+<figure class:list={['fw-image', { 'fw-image--tall': tall }]}>
+  <SanityPicture image={block.image} aspect={tall ? 16 / 10 : 1800 / 700} widths={[768, 1200, 1800, 2400]} sizes="100vw" filter="brightness(0.6) saturate(0.7)" />
+  {block.image.caption && <figcaption class="fw-image__caption gutter">{block.image.caption}</figcaption>}
+</figure>
+
+<style>
+  .fw-image {
+    height: 480px;
+    overflow: hidden;
+    margin-block: 2px;
+  }
+  .fw-image--tall {
+    height: 70vh;
+    min-height: 480px;
+  }
+  .fw-image :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .fw-image__caption {
+    padding-block: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+  @media (max-width: 767px) {
+    .fw-image { height: 280px; }
+  }
+</style>

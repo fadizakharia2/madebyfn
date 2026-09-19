@@ -1,0 +1,86 @@
+---
+import type { ArticleCard as ArticleCardType } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { estimateReadingTime, formatDateCard } from '@/lib/sanity/helpers';
+
+interface Props {
+  article: ArticleCardType;
+}
+const { article: a } = Astro.props;
+---
+
+<a href={routes.article(a.slug)} class="acard" data-cursor="Read" data-category={a.category?.slug ?? ''}>
+  <span class="acard__head">
+    <span class="acard__cat">{a.category?.title}</span>
+    <span class="acard__read">{a.readingTime ?? estimateReadingTime(a.body)} min read</span>
+  </span>
+  <h3 class="acard__title">{a.title}</h3>
+  {a.excerpt && <p class="acard__excerpt">{a.excerpt}</p>}
+  <span class="acard__meta">
+    <span>{a.author?.name}</span>
+    <span class="acard__dot" aria-hidden="true">·</span>
+    <span>{formatDateCard(a.publishedAt)}</span>
+  </span>
+</a>
+
+<style>
+  .acard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--space-10) var(--space-9);
+    background: var(--color-bg);
+    transition: background var(--dur-fast) var(--ease-standard);
+  }
+  .acard:hover {
+    background: var(--color-bg-2);
+  }
+  .acard__head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-5);
+  }
+  .acard__cat {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .acard__read {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: 0.06em;
+  }
+  .acard__title {
+    font-family: var(--font-serif);
+    font-size: var(--heading-2xs);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+    line-height: 1.3;
+    margin-bottom: 14px;
+  }
+  .acard__excerpt {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.65;
+    margin-bottom: var(--space-5);
+    flex: 1;
+  }
+  .acard__meta {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-mono);
+  }
+  .acard__dot {
+    color: var(--color-muted-2);
+  }
+  @media (max-width: 767px) {
+    .acard { padding: var(--space-8) var(--space-5); }
+  }
+</style>

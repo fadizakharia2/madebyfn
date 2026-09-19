@@ -1,0 +1,349 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+import PortableText from '@/components/content/PortableText.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import { getArticleBySlug, getArticleSlugs, getGlobals } from '@/lib/sanity/loaders';
+import { articleJsonLd, breadcrumbJsonLd, buildMeta } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+import { estimateReadingTime, formatDateLong, formatDateShort, pad2, tableOfContents } from '@/lib/sanity/helpers';
+
+export async function getStaticPaths() {
+  const slugs = await getArticleSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const [{ settings }, article] = await Promise.all([getGlobals(), getArticleBySlug(slug!)]);
+
+if (!article) {
+  return new Response(null, { status: 404 });
+}
+
+const readingTime = article.readingTime ?? estimateReadingTime(article.body);
+const toc = article.showTableOfContents !== false ? tableOfContents(article.body) : [];
+const author = article.author;
+const related = article.relatedArticles ?? [];
+
+const meta = buildMeta({
+  settings,
+  seo: article.seo,
+  title: article.title,
+  description: article.excerpt,
+  path: routes.article(article.slug),
+  image: article.coverImage,
+  type: 'article',
+  publishedAt: article.publishedAt,
+  modifiedAt: article.updatedAt ?? article.publishedAt,
+});
+const jsonLd = [
+  articleJsonLd(article, settings),
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Insights', path: routes.insights },
+    { name: article.title, path: routes.article(article.slug) },
+  ]),
+];
+---
+
+<BaseLayout meta={meta} jsonLd={jsonLd}>
+  <article>
+    <header class="art-head gutter">
+      <div class="art-head__inner">
+        <div class="art-head__tags">
+          {article.category?.title && <span class="art-head__cat">{article.category.title}</span>}
+          <span class="art-head__read">{readingTime} min read</span>
+        </div>
+        <h1 class="art-head__title animate-fade-up">{article.title}</h1>
+        {article.excerpt && <p class="art-head__standfirst animate-fade-up" style="animation-delay:0.1s">{article.excerpt}</p>}
+        <div class="art-head__meta">
+          {author && (
+            <a href={routes.developer(author.slug)} class="art-head__author">
+              {author.portrait && (
+                <span class="art-head__avatar"><SanityPicture image={author.portrait} aspect={1} widths={[64, 128]} sizes="32px" filter="grayscale(20%)" /></span>
+              )}
+              <span>{author.name}</span>
+            </a>
+          )}
+          <span class="art-head__sep" aria-hidden="true"></span>
+          <time datetime={article.publishedAt ?? undefined} class="art-head__date">{formatDateLong(article.publishedAt)}</time>
+          {article.updatedAt && article.updatedAt !== article.publishedAt && (
+            <span class="art-head__updated">Updated {formatDateShort(article.updatedAt)}</span>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <div class="art-cover">
+      <SanityPicture image={article.coverImage} aspect={3} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.5) saturate(0.7)" />
+    </div>
+
+    <div class="art-body gutter">
+      <div class="art-body__inner">
+        {toc.length > 0 && (
+          <nav class="toc" aria-label="Contents">
+            <p class="label toc__label">Contents</p>
+            <ol class="toc__list">
+              {toc.map((item, i) => (
+                <li class="toc__item">
+                  <span class="toc__num">{pad2(i + 1)}</span>
+                  <a href={`#${item.id}`} class="toc__link">{item.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        <PortableText value={article.body} />
+
+        {author && (
+          <aside class="bio">
+            {author.portrait && (
+              <span class="bio__avatar"><SanityPicture image={author.portrait} aspect={1} widths={[112, 224]} sizes="56px" filter="grayscale(20%)" /></span>
+            )}
+            <div>
+              <p class="bio__name">{author.name}</p>
+              <p class="bio__role">{author.title}{settings.studioName ? ` · ${settings.studioName}` : ''}</p>
+              {author.shortBio && <p class="bio__text">{author.shortBio}</p>}
+              <a href={routes.developer(author.slug)} class="text-link bio__link">More about {author.name.split(' ')[0]} <span aria-hidden="true">→</span></a>
+            </div>
+          </aside>
+        )}
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="related gutter section--alt" data-reveal>
+        <Eyebrow text="Related" class="related__eyebrow" />
+        <ul class="related__grid">
+          {related.map((r) => (
+            <li>
+              <a href={routes.article(r.slug)} class="rel" data-cursor="Read">
+                <span class="rel__cat">{r.category?.title}</span>
+                <h2 class="rel__title">{r.title}</h2>
+                <span class="rel__meta">{formatDateShort(r.publishedAt)} · {r.readingTime ?? estimateReadingTime(r.body)} min read</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <CtaBand heading="Want these principles applied to your project?" buttonLabel="Start a Project" href={routes.start} alt={false} />
+  </article>
+</BaseLayout>
+
+<style>
+  .art-head {
+    padding-top: var(--space-16);
+    background: var(--color-bg-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .art-head__inner {
+    max-width: var(--reading-width-lg);
+    margin-inline: auto;
+  }
+  .art-head__tags {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-7);
+  }
+  .art-head__cat {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .art-head__read {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: 0.06em;
+  }
+  .art-head__title {
+    font-family: var(--font-serif);
+    font-size: clamp(32px, 4.5vw, 60px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.1;
+    margin-bottom: var(--space-7);
+    text-wrap: balance;
+  }
+  .art-head__standfirst {
+    font-size: var(--text-3xl);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    margin-bottom: var(--space-9);
+  }
+  .art-head__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding-bottom: var(--space-9);
+    flex-wrap: wrap;
+  }
+  .art-head__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--color-fg-2);
+  }
+  .art-head__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: block;
+  }
+  .art-head__sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border-mid);
+  }
+  .art-head__date,
+  .art-head__updated {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-mono);
+  }
+  .art-cover {
+    height: 400px;
+    overflow: hidden;
+  }
+  .art-cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .art-body {
+    padding-block: var(--space-16);
+  }
+  .art-body__inner {
+    max-width: var(--reading-width);
+    margin-inline: auto;
+  }
+  .toc {
+    background: var(--color-bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-6) var(--space-7);
+    margin-bottom: var(--space-12);
+  }
+  .toc__label {
+    margin-bottom: var(--space-4);
+  }
+  .toc__item {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+  .toc__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    padding-top: 3px;
+  }
+  .toc__link {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .toc__link:hover {
+    color: var(--color-fg);
+  }
+  .bio {
+    display: flex;
+    gap: var(--space-6);
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-12);
+    margin-top: var(--space-16);
+  }
+  .bio__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: block;
+  }
+  .bio__name {
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--color-fg);
+    margin-bottom: 4px;
+  }
+  .bio__role {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .bio__text {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.65;
+    margin-bottom: var(--space-4);
+  }
+  .related {
+    padding-block: var(--space-16);
+    border-top: 1px solid var(--border);
+  }
+  .related__eyebrow {
+    margin-bottom: var(--space-10);
+  }
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .rel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--space-10) var(--space-9);
+    background: var(--color-bg-2);
+    transition: background var(--dur-fast) var(--ease-standard);
+  }
+  .rel:hover {
+    background: var(--color-surface);
+  }
+  .rel__cat {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .rel__title {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 2vw, 22px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+    line-height: 1.3;
+    margin-bottom: 12px;
+    flex: 1;
+  }
+  .rel__meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: 0.06em;
+  }
+  @media (max-width: 767px) {
+    .art-head { padding-top: var(--space-10); }
+    .art-cover { height: 240px; }
+    .related__grid { grid-template-columns: 1fr; }
+    .rel { padding: var(--space-8) var(--space-5); }
+    .bio { flex-direction: column; gap: var(--space-4); }
+  }
+</style>

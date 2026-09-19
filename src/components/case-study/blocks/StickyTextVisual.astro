@@ -1,0 +1,64 @@
+---
+import type { BlockStickyTextVisual } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import PortableText from '@/components/content/PortableText.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+/** Text scrolls while the visual stays pinned beside it. */
+interface Props {
+  block: BlockStickyTextVisual;
+}
+const { block } = Astro.props;
+const visualLeft = block.visualSide === 'left';
+---
+
+<section class:list={['cs-section sticky-block gutter', { 'sticky-block--left': visualLeft }]}>
+  <div class="sticky-block__text" data-reveal>
+    <Eyebrow text={block.eyebrow} class="cs-eyebrow" />
+    {block.heading && <h2 class="cs-display sticky-block__heading">{block.heading}</h2>}
+    <PortableText value={block.body} class="sticky-block__prose" />
+  </div>
+  <div class="sticky-block__visual">
+    <div class="sticky-block__pin" data-reveal>
+      <SanityPicture image={block.image} widths={[640, 960, 1280]} sizes="(max-width: 1023px) 100vw, 45vw" />
+      {block.image.caption && <p class="sticky-block__caption">{block.image.caption}</p>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .sticky-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+  .sticky-block--left .sticky-block__visual {
+    order: -1;
+  }
+  .sticky-block__heading {
+    font-size: var(--heading-lg);
+    margin-bottom: var(--space-8);
+  }
+  .sticky-block__pin {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-8));
+  }
+  .sticky-block__pin :global(img) {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    height: auto;
+  }
+  .sticky-block__caption {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+  @media (max-width: 1023px) {
+    .sticky-block { grid-template-columns: 1fr; gap: var(--space-10); }
+    .sticky-block--left .sticky-block__visual { order: 0; }
+    .sticky-block__pin { position: static; }
+  }
+</style>

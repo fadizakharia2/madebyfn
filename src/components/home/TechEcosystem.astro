@@ -1,0 +1,98 @@
+---
+import type { Homepage, Technology } from '@/lib/sanity/types';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+
+/** Technology as a categorised system rather than a logo wall. */
+interface Props {
+  section: NonNullable<Homepage['technology']>;
+  technologies: Technology[];
+}
+const { section, technologies } = Astro.props;
+
+const CATEGORY_ORDER = ['frontend', 'backend', 'mobile', 'data', 'ai', 'commerce', 'infrastructure', 'cms', 'design', 'other'];
+const CATEGORY_LABELS: Record<string, string> = {
+  frontend: 'Frontend',
+  backend: 'Backend',
+  mobile: 'Mobile',
+  data: 'Data',
+  ai: 'AI',
+  commerce: 'Commerce',
+  infrastructure: 'Infrastructure',
+  cms: 'CMS',
+  design: 'Design',
+  other: 'Other',
+};
+
+const groups = CATEGORY_ORDER.map((cat) => ({
+  key: cat,
+  label: CATEGORY_LABELS[cat] ?? cat,
+  items: technologies.filter((t) => t.category === cat),
+})).filter((g) => g.items.length > 0);
+---
+
+{groups.length > 0 && (
+  <section class="tech section section--bordered" id="technology">
+    <SectionHeader eyebrow={section.eyebrow} heading={section.heading} />
+    <div class="gutter">
+      <div class="tech__grid" style={`--count:${groups.length}`}>
+        {groups.map((g, i) => (
+          <div class="tech__cell" data-reveal data-reveal-delay={String(Math.min(i % 4, 5))}>
+            <p class="tech__cat">{g.label}</p>
+            <ul class="tech__items">
+              {g.items.map((t) => (
+                <li>
+                  {t.url ? <a href={t.url} target="_blank" rel="noopener" class="tech__item tech__item--link">{t.name}</a> : <span class="tech__item">{t.name}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .tech__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+  .tech__cell {
+    background: var(--color-bg);
+    padding: var(--space-8) var(--space-7);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .tech__cat {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-5);
+  }
+  .tech__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .tech__item {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.4;
+  }
+  .tech__item--link {
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .tech__item--link:hover {
+    color: var(--color-accent);
+  }
+  @media (max-width: 1023px) {
+    .tech__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .tech__cell { padding: var(--space-6) var(--space-5); }
+  }
+</style>

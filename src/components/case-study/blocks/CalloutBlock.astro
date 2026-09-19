@@ -1,0 +1,13 @@
+---
+import type { BlockCallout } from '@/lib/sanity/types';
+import Callout from '@/components/content/Callout.astro';
+
+interface Props {
+  block: BlockCallout;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-reading cs-section cs-section--tight" data-reveal>
+  <Callout callout={block.callout} />
+</section>

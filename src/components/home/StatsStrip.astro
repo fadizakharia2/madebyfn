@@ -1,0 +1,91 @@
+---
+import type { Metric } from '@/lib/sanity/types';
+
+/** Credibility strip: system-metadata style stats beneath the hero. */
+interface Props {
+  items: Metric[];
+  note?: string | null;
+}
+const { items, note } = Astro.props;
+---
+
+<div class="stats gutter" data-reveal>
+  <ul class="stats__list">
+    {items.map((s, i) => (
+      <li class="stats__item">
+        <div class="stats__cell">
+          <span class="stats__value">{s.value}</span>
+          <span class="stats__label">{s.label}</span>
+        </div>
+        {i < items.length - 1 && <span class="stats__divider" aria-hidden="true"></span>}
+      </li>
+    ))}
+  </ul>
+  {note && <span class="stats__note">{note}</span>}
+</div>
+
+<style>
+  .stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-10);
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--color-bg-2);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .stats::-webkit-scrollbar { display: none; }
+  .stats__list {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+  .stats__item {
+    display: flex;
+    align-items: center;
+  }
+  .stats__cell {
+    text-align: center;
+    padding: 0 var(--space-10);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .stats__item:first-child .stats__cell {
+    padding-left: 0;
+  }
+  .stats__value {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1;
+  }
+  .stats__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .stats__divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+  .stats__note {
+    margin-left: auto;
+    flex: 0 0 auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  @media (max-width: 767px) {
+    .stats__cell { padding: 0 var(--space-6); }
+    .stats__value { font-size: 22px; }
+  }
+</style>

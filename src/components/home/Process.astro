@@ -1,0 +1,116 @@
+---
+import type { Homepage } from '@/lib/sanity/types';
+import { pad2 } from '@/lib/sanity/helpers';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+
+/** Six-step process. The active step follows hover/focus, first step by default. */
+interface Props {
+  section: NonNullable<Homepage['process']>;
+}
+const { section } = Astro.props;
+const steps = section.steps ?? [];
+---
+
+{steps.length > 0 && (
+  <section class="process section section--alt section--bordered" id="process">
+    <SectionHeader eyebrow={section.eyebrow} heading={section.heading} />
+    <ol class="process__list gutter" data-process>
+      {steps.map((step, i) => (
+        <li class:list={['process__step', { 'is-active': i === 0 }]} data-process-step tabindex="0">
+          <span class="process__marker">
+            <span class="process__dot" aria-hidden="true"></span>
+            <span class="process__num">{pad2(i + 1)}</span>
+          </span>
+          <span class="process__label">{step.label}</span>
+          <p class="process__desc">{step.description}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+
+<style>
+  .process__step {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    gap: var(--space-8);
+    align-items: center;
+    padding: 28px 0;
+    border-top: 1px solid var(--border);
+    cursor: default;
+  }
+  .process__step:focus-visible {
+    box-shadow: none;
+    outline: 1px solid var(--border-accent);
+    outline-offset: -1px;
+  }
+  .process__marker {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .process__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(var(--fg-rgb) / 0.2);
+    background: transparent;
+    transition: all var(--dur-base) var(--ease-standard);
+  }
+  .process__step.is-active .process__dot {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+  .process__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+  }
+  .process__label {
+    font-family: var(--font-serif);
+    font-size: var(--heading-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-snug);
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+  .process__step.is-active .process__label {
+    color: var(--color-fg);
+  }
+  .process__desc {
+    font-size: var(--text-base);
+    color: var(--color-muted-2);
+    line-height: 1.6;
+    max-width: 500px;
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+  .process__step.is-active .process__desc {
+    color: var(--color-fg-2);
+  }
+  @media (max-width: 767px) {
+    .process__step {
+      grid-template-columns: 64px 1fr;
+      grid-template-areas: 'marker label' 'marker desc';
+      row-gap: var(--space-2);
+      align-items: start;
+    }
+    .process__marker { grid-area: marker; }
+    .process__label { grid-area: label; }
+    .process__desc { grid-area: desc; color: var(--color-fg-2); }
+    .process__step .process__label { color: var(--color-fg); }
+  }
+</style>
+
+<script>
+  function initProcess() {
+    document.querySelectorAll<HTMLElement>('[data-process]').forEach((list) => {
+      const steps = Array.from(list.querySelectorAll<HTMLElement>('[data-process-step]'));
+      const activate = (target: HTMLElement) => steps.forEach((s) => s.classList.toggle('is-active', s === target));
+      steps.forEach((step) => {
+        step.addEventListener('mouseenter', () => activate(step));
+        step.addEventListener('focus', () => activate(step));
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', initProcess);
+</script>

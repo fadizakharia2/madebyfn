@@ -1,0 +1,98 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import Button from '@/components/ui/Button.astro';
+import { getGlobals, getNotFoundPage } from '@/lib/sanity/loaders';
+import { buildMeta } from '@/lib/seo';
+import { resolveNavHref, routes } from '@/lib/routes';
+
+const [{ settings }, page] = await Promise.all([getGlobals(), getNotFoundPage()]);
+const meta = buildMeta({ settings, title: 'Page not found', description: page?.copy, path: '/404', noIndex: true });
+const links = (page?.links ?? []).map((l) => ({ label: l.label ?? '', href: resolveNavHref(l) }));
+const fallbackLinks = [
+  { label: 'Home', href: routes.home },
+  { label: 'View Work', href: routes.work },
+  { label: 'Start a Project', href: routes.start },
+];
+const actions = links.length > 0 ? links : fallbackLinks;
+---
+
+<BaseLayout meta={meta}>
+  <section class="nf gutter">
+    <div class="nf__ghost" aria-hidden="true">404</div>
+    <div class="nf__grid" aria-hidden="true"></div>
+    <div class="nf__content">
+      <Eyebrow text={page?.eyebrow || 'Error 404'} dash={false} class="nf__eyebrow" />
+      <h1 class="nf__title">{page?.title || "This page doesn't exist."}</h1>
+      {page?.copy && <p class="nf__copy">{page.copy}</p>}
+      <div class="nf__actions">
+        {actions.map((a, i) => (
+          <Button href={a.href} variant={i === 0 ? 'primary' : 'secondary'} size="md">{a.label}</Button>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    position: relative;
+    min-height: calc(100vh - var(--header-h));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: var(--space-20);
+    overflow: hidden;
+  }
+  .nf__ghost {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: clamp(200px, 35vw, 480px);
+    color: rgba(var(--fg-rgb) / 0.02);
+    letter-spacing: -0.06em;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .nf__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(var(--fg-rgb) / 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--fg-rgb) / 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .nf__content {
+    position: relative;
+    text-align: center;
+    max-width: 480px;
+  }
+  .nf__eyebrow {
+    margin-bottom: var(--space-6);
+  }
+  .nf__title {
+    font-family: var(--font-serif);
+    font-size: clamp(36px, 5vw, 60px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.1;
+    margin-bottom: var(--space-5);
+  }
+  .nf__copy {
+    font-size: var(--text-xl);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    margin-bottom: var(--space-12);
+  }
+  .nf__actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+</style>

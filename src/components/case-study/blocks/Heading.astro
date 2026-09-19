@@ -1,0 +1,25 @@
+---
+import type { BlockHeading } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+
+interface Props {
+  block: BlockHeading;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-section gutter statement" data-reveal>
+  <Eyebrow text={block.eyebrow} class="cs-eyebrow" />
+  {block.heading && <h2 class="cs-display statement__heading">{block.heading}</h2>}
+  {block.text && <p class="lead statement__text">{block.text}</p>}
+</section>
+
+<style>
+  .statement__heading {
+    max-width: 780px;
+  }
+  .statement__text {
+    max-width: 560px;
+    margin-top: var(--space-6);
+  }
+</style>

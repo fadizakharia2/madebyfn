@@ -1,0 +1,99 @@
+---
+import type { Homepage, SiteSettings } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { lines } from '@/lib/sanity/helpers';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import Button from '@/components/ui/Button.astro';
+
+/** Dramatic closing CTA with the giant ghost text. */
+interface Props {
+  section: NonNullable<Homepage['finalCta']>;
+  settings: SiteSettings;
+}
+const { section, settings } = Astro.props;
+const headingLines = lines(section.heading);
+const availabilityText = section.availabilityText || settings.availability?.label || '';
+const statusClass =
+  settings.availability?.status === 'limited' ? 'status__dot--busy' : settings.availability?.status === 'unavailable' ? 'status__dot--closed' : '';
+---
+
+<section class="final gutter section--alt" id="start">
+  {section.backgroundText && <div class="final__ghost" aria-hidden="true">{section.backgroundText}</div>}
+  <div class="final__content" data-reveal>
+    <Eyebrow text={section.eyebrow} class="final__eyebrow" />
+    <h2 class="display final__heading">
+      {headingLines.map((line, i) => (
+        <Fragment>{line}{i < headingLines.length - 1 && <br />}</Fragment>
+      ))}
+    </h2>
+    {section.copy && <p class="final__copy">{section.copy}</p>}
+    <div class="final__actions">
+      <Button href={routes.start} size="lg" arrow="→" cursor="Start" cursorLight>{section.primaryLabel || 'Start a Project'}</Button>
+      {section.showEmail !== false && (
+        <Button href={`mailto:${settings.primaryEmail}`} variant="mono" arrow="↗">{settings.primaryEmail}</Button>
+      )}
+    </div>
+    {availabilityText && (
+      <p class="status final__status">
+        <span class:list={['status__dot status__dot--pulse', statusClass]} aria-hidden="true"></span>
+        {availabilityText}
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  .final {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--section-y-lg);
+  }
+  .final__ghost {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(80px, 15vw, 220px);
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: rgba(var(--fg-rgb) / 0.02);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .final__content {
+    position: relative;
+    max-width: 720px;
+  }
+  .final__eyebrow {
+    margin-bottom: var(--space-8);
+  }
+  .final__heading {
+    font-size: var(--display-cta);
+    line-height: 1;
+    margin-bottom: var(--space-8);
+  }
+  .final__copy {
+    font-size: var(--text-2xl);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 52px;
+  }
+  .final__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-10);
+  }
+  .final__status {
+    font-size: var(--text-xs);
+  }
+  @media (max-width: 767px) {
+    .final__copy { margin-bottom: var(--space-8); }
+    .final__actions :global(.btn) { width: 100%; }
+  }
+</style>

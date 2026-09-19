@@ -1,0 +1,98 @@
+---
+import type { BlockTimeline } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+
+interface Props {
+  block: BlockTimeline;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-section cs-section--alt timeline">
+  <div class="gutter timeline__inner">
+    <div class="timeline__intro" data-reveal>
+      <Eyebrow text={block.eyebrow || 'Timeline'} class="cs-eyebrow" />
+      {block.heading && <h2 class="cs-display timeline__heading">{block.heading}</h2>}
+    </div>
+    <ol class="timeline__list">
+      {block.items.map((item, i) => (
+        <li class="tl-item" data-reveal data-reveal-delay={String(Math.min(i, 5))}>
+          <span class="tl-item__marker" aria-hidden="true"></span>
+          <span class="tl-item__label">{item.label}</span>
+          <h3 class="tl-item__title">{item.title}</h3>
+          {item.body && <p class="tl-item__body">{item.body}</p>}
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .timeline__inner {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+  .timeline__heading {
+    font-size: var(--heading-lg);
+  }
+  .timeline__list {
+    position: relative;
+    padding-left: var(--space-8);
+  }
+  .timeline__list::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border-mid);
+  }
+  .tl-item {
+    position: relative;
+    padding-bottom: var(--space-8);
+  }
+  .tl-item:last-child {
+    padding-bottom: 0;
+  }
+  .tl-item__marker {
+    position: absolute;
+    left: calc(-1 * var(--space-8));
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid var(--color-accent);
+    background: var(--color-bg-2);
+  }
+  .tl-item:first-child .tl-item__marker {
+    background: var(--color-accent);
+  }
+  .tl-item__label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: var(--space-2);
+  }
+  .tl-item__title {
+    font-family: var(--font-serif);
+    font-size: var(--heading-2xs);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+    margin-bottom: var(--space-2);
+  }
+  .tl-item__body {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    max-width: 520px;
+  }
+  @media (max-width: 1023px) {
+    .timeline__inner { grid-template-columns: 1fr; gap: var(--space-10); }
+  }
+</style>

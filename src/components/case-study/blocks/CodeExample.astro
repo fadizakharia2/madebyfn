@@ -1,0 +1,23 @@
+---
+import type { BlockCode } from '@/lib/sanity/types';
+import CodeBlock from '@/components/content/CodeBlock.astro';
+
+interface Props {
+  block: BlockCode;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-reading cs-section cs-section--tight code-example" data-reveal>
+  {block.intro && <p class="lead code-example__intro">{block.intro}</p>}
+  <CodeBlock code={block.code} class="code-example__code" />
+</section>
+
+<style>
+  .code-example__intro {
+    margin-bottom: var(--space-2);
+  }
+  .code-example :global(.code-example__code) {
+    margin-block: var(--space-6) 0;
+  }
+</style>

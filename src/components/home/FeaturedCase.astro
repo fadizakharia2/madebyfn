@@ -1,0 +1,277 @@
+---
+import type { Homepage } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { pad2 } from '@/lib/sanity/helpers';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+/**
+ * Featured case story: Challenge → Approach → Build → Result over a full-bleed
+ * project image, with a glass metrics card. Steps are a tab list.
+ */
+interface Props {
+  section: NonNullable<Homepage['featuredCase']>;
+}
+const { section } = Astro.props;
+const project = section.project;
+const steps = section.steps ?? [];
+const metrics = section.metrics?.length ? section.metrics : (project?.metrics ?? []).slice(0, 3);
+---
+
+{project && steps.length > 0 && (
+  <section class="case section section--alt section--bordered" id="featured-case">
+    <SectionHeader eyebrow={section.eyebrow} heading={section.heading} />
+
+    <div class="case__panel" data-case-story>
+      <div class="case__media" aria-hidden="true">
+        <SanityPicture image={project.heroImage} aspect={2} widths={[768, 1200, 1800]} sizes="100vw" filter="brightness(0.45) saturate(0.65)" />
+        <div class="case__vignette"></div>
+        <div class="case__vignette-bottom"></div>
+      </div>
+
+      <div class="case__grid">
+        <div class="case__steps">
+          <div role="tablist" aria-label="Case story steps" class="case__tablist">
+            {steps.map((step, i) => (
+              <div class:list={['case__step', { 'is-active': i === 0 }]} data-case-step>
+                <button
+                  type="button"
+                  role="tab"
+                  id={`case-tab-${i}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  aria-controls={`case-panel-${i}`}
+                  tabindex={i === 0 ? 0 : -1}
+                  class="case__tab"
+                  data-case-tab
+                >
+                  <span class="case__tab-num">{pad2(i + 1)}</span>
+                  <span class="case__tab-label">{step.label}</span>
+                </button>
+                <div id={`case-panel-${i}`} role="tabpanel" aria-labelledby={`case-tab-${i}`} class="case__body" hidden={i !== 0} data-case-panel>
+                  <h3 class="case__heading">{step.heading}</h3>
+                  <p class="case__text">{step.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div class="case__cta">
+            <a href={routes.project(project.slug)} class="text-link">{section.linkLabel || 'Full case study'} <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+
+        {metrics.length > 0 && (
+          <div class="case__aside">
+            <div class="case__card">
+              <div class="case__card-head">
+                <span>{project.client?.name ?? project.name}</span>
+                {section.metricsLabel && <span>{section.metricsLabel}</span>}
+              </div>
+              <dl class="case__metrics">
+                {metrics.map((m) => (
+                  <div class="case__metric">
+                    <dd class="case__metric-value">{m.value}</dd>
+                    <dt class="case__metric-label">{m.label}</dt>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .case__panel {
+    position: relative;
+    min-height: 600px;
+    overflow: hidden;
+  }
+  .case__media {
+    position: absolute;
+    inset: 0;
+  }
+  .case__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .case__vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(var(--bg2-rgb) / 0.96) 0%, rgba(var(--bg2-rgb) / 0.7) 45%, rgba(var(--bg2-rgb) / 0.15) 75%, rgba(var(--bg2-rgb) / 0.05) 100%);
+  }
+  .case__vignette-bottom {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(var(--bg2-rgb) / 0.6) 0%, transparent 40%);
+  }
+  .case__grid {
+    position: relative;
+    z-index: var(--z-raised);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+  }
+  .case__steps {
+    padding: var(--space-16) var(--gutter);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .case__step {
+    border-top: 1px solid rgba(var(--fg-rgb) / 0.1);
+    padding: 28px 0;
+    opacity: 0.4;
+    transition: opacity var(--dur-base) var(--ease-standard);
+  }
+  .case__step.is-active {
+    opacity: 1;
+  }
+  .case__tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: 100%;
+    text-align: left;
+  }
+  .case__tab-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .case__tab-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .case__step.is-active .case__tab-label {
+    color: var(--color-accent);
+  }
+  .case__body {
+    padding-top: 14px;
+  }
+  .case__heading {
+    font-family: var(--font-serif);
+    font-size: clamp(20px, 2.2vw, 30px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .case__text {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+  }
+  .case__cta {
+    padding-top: 28px;
+  }
+  .case__aside {
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-10) var(--gutter) var(--space-12);
+  }
+  .case__card {
+    width: 100%;
+    background: var(--color-surface-overlay);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+  }
+  .case__card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .case__metrics {
+    display: flex;
+    gap: var(--space-8);
+  }
+  .case__metric {
+    display: flex;
+    flex-direction: column;
+  }
+  .case__metric-value {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-heading);
+    order: 1;
+  }
+  .case__metric-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    order: 2;
+  }
+  @media (max-width: 1023px) {
+    .case__grid { grid-template-columns: 1fr; min-height: 0; }
+    .case__panel { min-height: 0; }
+    .case__aside { padding-top: 0; }
+    .case__vignette { background: rgba(var(--bg2-rgb) / 0.82); }
+  }
+  @media (max-width: 767px) {
+    .case__steps { padding: var(--space-10) var(--gutter) var(--space-6); }
+    .case__metrics { flex-wrap: wrap; gap: var(--space-5) var(--space-8); }
+  }
+</style>
+
+<script>
+  function initCaseStory() {
+    document.querySelectorAll<HTMLElement>('[data-case-story]').forEach((root) => {
+      const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-case-step]'));
+      const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-case-tab]'));
+      const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-case-panel]'));
+
+      const activate = (index: number, focus = false) => {
+        steps.forEach((step, i) => {
+          const active = i === index;
+          step.classList.toggle('is-active', active);
+          tabs[i]?.setAttribute('aria-selected', String(active));
+          tabs[i]?.setAttribute('tabindex', active ? '0' : '-1');
+          if (panels[i]) panels[i].hidden = !active;
+        });
+        if (focus) tabs[index]?.focus();
+      };
+
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => activate(i));
+        tab.addEventListener('keydown', (e) => {
+          const last = tabs.length - 1;
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            activate(i === last ? 0 : i + 1, true);
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            activate(i === 0 ? last : i - 1, true);
+          } else if (e.key === 'Home') {
+            e.preventDefault();
+            activate(0, true);
+          } else if (e.key === 'End') {
+            e.preventDefault();
+            activate(last, true);
+          }
+        });
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', initCaseStory);
+</script>

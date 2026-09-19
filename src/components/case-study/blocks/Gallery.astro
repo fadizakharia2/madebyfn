@@ -1,0 +1,64 @@
+---
+import type { BlockGallery } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+/** Editorial gallery: first image spans full width, the rest tile in pairs. */
+interface Props {
+  block: BlockGallery;
+}
+const { block } = Astro.props;
+const [first, ...rest] = block.images;
+---
+
+<section class="cs-section gallery">
+  {(block.eyebrow || block.heading) && (
+    <div class="gutter gallery__intro" data-reveal>
+      <Eyebrow text={block.eyebrow} class="cs-eyebrow" />
+      {block.heading && <h2 class="cs-display">{block.heading}</h2>}
+    </div>
+  )}
+  <div class="gallery__grid gutter">
+    {first && (
+      <figure class="gallery__item gallery__item--wide" data-reveal>
+        <SanityPicture image={first} aspect={16 / 9} widths={[768, 1200, 1800]} sizes="100vw" />
+        {first.caption && <figcaption>{first.caption}</figcaption>}
+      </figure>
+    )}
+    {rest.map((img, i) => (
+      <figure class="gallery__item" data-reveal data-reveal-delay={String((i % 2) + 1)}>
+        <SanityPicture image={img} aspect={4 / 3} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" />
+        {img.caption && <figcaption>{img.caption}</figcaption>}
+      </figure>
+    ))}
+  </div>
+</section>
+
+<style>
+  .gallery__intro {
+    margin-bottom: var(--space-12);
+  }
+  .gallery__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+  .gallery__item--wide {
+    grid-column: 1 / -1;
+  }
+  .gallery__item :global(img) {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    height: auto;
+  }
+  .gallery__item figcaption {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+  @media (max-width: 767px) {
+    .gallery__grid { grid-template-columns: 1fr; gap: var(--space-4); }
+  }
+</style>

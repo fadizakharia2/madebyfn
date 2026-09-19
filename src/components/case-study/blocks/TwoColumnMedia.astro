@@ -1,0 +1,46 @@
+---
+import type { BlockTwoColumnMedia } from '@/lib/sanity/types';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+interface Props {
+  block: BlockTwoColumnMedia;
+}
+const { block } = Astro.props;
+---
+
+<figure class="two-col" data-reveal>
+  <div class="two-col__grid">
+    <div class="two-col__cell"><SanityPicture image={block.left} aspect={4 / 3} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" /></div>
+    <div class="two-col__cell"><SanityPicture image={block.right} aspect={4 / 3} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" /></div>
+  </div>
+  {block.caption && <figcaption class="two-col__caption gutter">{block.caption}</figcaption>}
+</figure>
+
+<style>
+  .two-col {
+    margin-block: 2px;
+  }
+  .two-col__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .two-col__cell {
+    overflow: hidden;
+  }
+  .two-col__cell :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .two-col__caption {
+    padding-block: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+  @media (max-width: 767px) {
+    .two-col__grid { grid-template-columns: 1fr; }
+  }
+</style>

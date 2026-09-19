@@ -1,0 +1,216 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+import CaseStudyBlocks from '@/components/case-study/CaseStudyBlocks.astro';
+import DefaultCaseStudy from '@/components/case-study/DefaultCaseStudy.astro';
+import { getGlobals, getProjectBySlug, getProjectSlugs } from '@/lib/sanity/loaders';
+import { breadcrumbJsonLd, buildMeta, creativeWorkJsonLd } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+import { joinNames, teamLabel } from '@/lib/sanity/helpers';
+
+export async function getStaticPaths() {
+  const slugs = await getProjectSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const [{ settings }, project] = await Promise.all([getGlobals(), getProjectBySlug(slug!)]);
+
+if (!project) {
+  return new Response(null, { status: 404 });
+}
+
+const meta = buildMeta({
+  settings,
+  seo: project.seo,
+  title: `${project.name}${project.client?.name && project.client.name !== project.name ? ` — ${project.client.name}` : ''}`,
+  description: project.shortDescription,
+  path: routes.project(project.slug),
+  image: project.heroImage,
+});
+
+const jsonLd = [
+  creativeWorkJsonLd(project),
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Work', path: routes.work },
+    { name: project.name, path: routes.project(project.slug) },
+  ]),
+];
+
+const tags = [project.industry?.name, project.services?.[0]?.name, project.year].filter((t): t is string => Boolean(t));
+const metaRow = [
+  { label: 'Client', value: project.client?.name },
+  { label: 'Timeline', value: project.timeline },
+  { label: 'Team', value: teamLabel(project.developers) },
+  { label: 'Services', value: joinNames(project.services) },
+  { label: 'Year', value: project.year },
+].filter((m): m is { label: string; value: string } => Boolean(m.value));
+
+const hasBlocks = Boolean(project.caseStudy && project.caseStudy.length > 0);
+const next = project.nextProject;
+---
+
+<BaseLayout meta={meta} jsonLd={jsonLd}>
+  <article>
+    <header class="cs-hero">
+      <div class="cs-hero__media">
+        <SanityPicture image={project.mobileHeroImage ?? project.heroImage} aspect={2} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.4) saturate(0.6)" class="cs-hero__img--mobile" />
+        <SanityPicture image={project.heroImage} aspect={2} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.4) saturate(0.6)" class="cs-hero__img--desktop" />
+      </div>
+      <div class="cs-hero__shade" aria-hidden="true"></div>
+      <div class="cs-hero__content gutter">
+        {tags.length > 0 && (
+          <ul class="cs-hero__tags">
+            {tags.map((t) => <li class="tag cs-hero__tag">{t}</li>)}
+          </ul>
+        )}
+        <h1 class="cs-hero__title animate-fade-up">{project.client?.name ?? project.name}</h1>
+        {project.statement && <p class="cs-hero__statement animate-fade-up" style="animation-delay:0.1s">{project.statement}</p>}
+      </div>
+    </header>
+
+    {metaRow.length > 0 && (
+      <dl class="cs-meta gutter">
+        {metaRow.map((m) => (
+          <div class="cs-meta__item">
+            <dt class="cs-meta__label">{m.label}</dt>
+            <dd class="cs-meta__value">{m.value}</dd>
+          </div>
+        ))}
+        {project.externalLink && (
+          <div class="cs-meta__item cs-meta__item--link">
+            <dt class="cs-meta__label">Live</dt>
+            <dd class="cs-meta__value"><a href={project.externalLink} target="_blank" rel="noopener" class="cs-meta__link">Visit site ↗</a></dd>
+          </div>
+        )}
+      </dl>
+    )}
+
+    {hasBlocks ? <CaseStudyBlocks blocks={project.caseStudy!} /> : <DefaultCaseStudy project={project} />}
+
+    {next && (
+      <a href={routes.project(next.slug)} class="cs-next gutter" data-cursor="Next">
+        <span class="label cs-next__label">Next project</span>
+        <span class="cs-next__title">{next.client?.name ?? next.name} <span aria-hidden="true">→</span></span>
+      </a>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .cs-hero {
+    position: relative;
+    height: 60vh;
+    min-height: 400px;
+    overflow: hidden;
+    margin-top: calc(-1 * var(--header-h));
+    padding-top: var(--header-h);
+  }
+  .cs-hero__media {
+    position: absolute;
+    inset: 0;
+  }
+  .cs-hero__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cs-hero__media :global(.cs-hero__img--mobile) { display: none; }
+  .cs-hero__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--color-bg) 20%, transparent 70%);
+  }
+  .cs-hero__content {
+    position: absolute;
+    bottom: var(--space-16);
+    left: 0;
+    right: 0;
+  }
+  .cs-hero__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+  .cs-hero__tag {
+    color: rgba(var(--fg-rgb) / 0.5);
+    border-color: var(--border-strong);
+    letter-spacing: var(--tracking-caps);
+  }
+  .cs-hero__title {
+    font-family: var(--font-serif);
+    font-size: clamp(40px, 6vw, 80px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1;
+  }
+  .cs-hero__statement {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(18px, 2.5vw, 28px);
+    color: var(--color-fg-2);
+    letter-spacing: var(--tracking-snug);
+    margin-top: var(--space-3);
+  }
+  .cs-meta {
+    display: flex;
+    gap: var(--space-16);
+    padding-block: var(--space-7);
+    border-bottom: 1px solid var(--border);
+    background: var(--color-bg-2);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .cs-meta::-webkit-scrollbar { display: none; }
+  .cs-meta__item {
+    flex: 0 0 auto;
+  }
+  .cs-meta__item--link {
+    margin-left: auto;
+  }
+  .cs-meta__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 6px;
+  }
+  .cs-meta__value {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+  }
+  .cs-meta__link {
+    color: var(--color-accent);
+  }
+  .cs-next {
+    display: block;
+    padding-block: var(--space-20);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background var(--dur-fast) var(--ease-standard);
+  }
+  .cs-next:hover {
+    background: var(--color-bg-2);
+  }
+  .cs-next__label {
+    display: block;
+    margin-bottom: var(--space-4);
+  }
+  .cs-next__title {
+    font-family: var(--font-serif);
+    font-size: clamp(36px, 5vw, 68px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1;
+  }
+  @media (max-width: 767px) {
+    .cs-hero { height: 70vh; }
+    .cs-hero__media :global(.cs-hero__img--mobile) { display: block; }
+    .cs-hero__media :global(.cs-hero__img--desktop) { display: none; }
+    .cs-hero__content { bottom: var(--space-10); }
+    .cs-meta { gap: var(--space-8); }
+  }
+</style>

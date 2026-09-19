@@ -1,0 +1,115 @@
+---
+import type { Video as VideoType } from '@/lib/sanity/types';
+import { hasImage, imageUrl } from '@/lib/sanity/image';
+
+/**
+ * Video module. Direct files render a native <video>; YouTube and Vimeo links
+ * render a privacy-friendly embed. Autoplay only applies to direct files and
+ * is muted, looped and paused for reduced-motion users (via script).
+ */
+interface Props {
+  node?: VideoType;
+  video?: VideoType;
+}
+const candidate = Astro.props.node ?? Astro.props.video;
+// A video object without a URL (optional field left empty) renders nothing.
+const video = candidate?.url ? (candidate as VideoType & { url: string }) : undefined;
+
+function embedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtube.com') || u.hostname === 'youtu.be') {
+      const id = u.hostname === 'youtu.be' ? u.pathname.slice(1) : u.searchParams.get('v');
+      return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0` : null;
+    }
+    if (u.hostname.includes('vimeo.com')) {
+      const id = u.pathname.split('/').filter(Boolean).pop();
+      return id ? `https://player.vimeo.com/video/${id}?dnt=1` : null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+const embed = video ? embedUrl(video.url) : null;
+const poster = video && hasImage(video.poster) ? imageUrl(video.poster, { width: 1600, height: 900 }) : undefined;
+---
+
+{video && (
+  <figure class="video">
+    <div class="video__frame">
+      {embed ? (
+        <iframe
+          src={embed}
+          title={video.caption ?? 'Embedded video'}
+          loading="lazy"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      ) : (
+        <video
+          src={video.url}
+          poster={poster}
+          controls={!video.autoplay}
+          muted={Boolean(video.autoplay)}
+          loop={Boolean(video.autoplay)}
+          playsinline
+          preload="metadata"
+          data-autoplay={video.autoplay ? 'true' : undefined}
+        ></video>
+      )}
+    </div>
+    {video.caption && <figcaption class="video__caption">{video.caption}</figcaption>}
+  </figure>
+)}
+
+<style>
+  .video__frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--color-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .video__frame :global(iframe),
+  .video__frame :global(video) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+  }
+  .video__caption {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+</style>
+
+<script>
+  function initVideos() {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]').forEach((v) => {
+      if (reduced) {
+        v.controls = true;
+        return;
+      }
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) v.play().catch(() => {});
+            else v.pause();
+          });
+        },
+        { threshold: 0.25 },
+      );
+      io.observe(v);
+    });
+  }
+  document.addEventListener('astro:page-load', initVideos);
+</script>

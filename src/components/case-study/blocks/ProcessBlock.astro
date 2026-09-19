@@ -1,0 +1,74 @@
+---
+import type { BlockProcess } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import { pad2 } from '@/lib/sanity/helpers';
+
+interface Props {
+  block: BlockProcess;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-section process-block">
+  <div class="gutter process-block__intro" data-reveal>
+    <Eyebrow text={block.eyebrow || 'Process'} class="cs-eyebrow" />
+    {block.heading && <h2 class="cs-display">{block.heading}</h2>}
+  </div>
+  <ol class="gutter process-block__list">
+    {block.steps.map((step, i) => (
+      <li class="pstep" data-reveal data-reveal-delay={String(Math.min(i, 5))}>
+        <span class="pstep__num">{pad2(i + 1)}</span>
+        <div>
+          <span class="pstep__label">{step.label}</span>
+          {step.heading && <h3 class="pstep__heading">{step.heading}</h3>}
+          {step.body && <p class="pstep__body">{step.body}</p>}
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .process-block__intro {
+    margin-bottom: var(--space-12);
+  }
+  .pstep {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: var(--space-8);
+    padding: var(--space-7) 0;
+    border-top: 1px solid var(--border);
+  }
+  .pstep__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    padding-top: 6px;
+  }
+  .pstep__label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: var(--space-2);
+  }
+  .pstep__heading {
+    font-family: var(--font-serif);
+    font-size: var(--heading-xs);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+    margin-bottom: var(--space-3);
+  }
+  .pstep__body {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    max-width: 640px;
+  }
+  @media (max-width: 767px) {
+    .pstep { grid-template-columns: 40px 1fr; gap: var(--space-4); }
+  }
+</style>

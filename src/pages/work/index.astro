@@ -1,0 +1,19 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import WorkGrid from '@/components/work/WorkGrid.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import { getGlobals, getProjects, getWorkPage } from '@/lib/sanity/loaders';
+import { breadcrumbJsonLd, buildMeta } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+
+const [{ settings }, page, projects] = await Promise.all([getGlobals(), getWorkPage(), getProjects()]);
+const meta = buildMeta({ settings, seo: page.seo, title: page.title ?? 'Work', description: page.intro, path: routes.work, image: projects[0]?.heroImage });
+const jsonLd = [breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: page.title ?? 'Work', path: routes.work }])];
+---
+
+<BaseLayout meta={meta} jsonLd={jsonLd}>
+  <PageHeader eyebrow={page.eyebrow} title={page.title} intro={page.intro} />
+  <WorkGrid projects={projects} page={page} />
+  <CtaBand heading={page.cta?.heading} buttonLabel={page.cta?.buttonLabel} href={routes.start} />
+</BaseLayout>

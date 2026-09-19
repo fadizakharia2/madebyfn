@@ -1,0 +1,208 @@
+---
+/**
+ * Desktop-only custom cursor from the design: a brass dot that expands into a
+ * labelled ring over elements with [data-cursor], and inverts to a light,
+ * frosted ring over light surfaces ([data-cursor-light] or light image pixels).
+ * Disabled for coarse pointers and reduced-motion users (see global.css).
+ */
+---
+
+<div class="cursor" data-cursor-root aria-hidden="true">
+  <div class="cursor__ring" data-cursor-ring>
+    <span class="cursor__label" data-cursor-label></span>
+  </div>
+  <div class="cursor__dot" data-cursor-dot></div>
+</div>
+
+<style>
+  .cursor {
+    display: none;
+  }
+  @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    body.has-custom-cursor .cursor {
+      display: block;
+    }
+  }
+  .cursor__ring,
+  .cursor__dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-cursor);
+    pointer-events: none;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform, width, height;
+  }
+  .cursor__ring {
+    width: 0;
+    height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0 solid transparent;
+    transition:
+      width 0.35s var(--ease-out-expo),
+      height 0.35s var(--ease-out-expo),
+      background 0.18s var(--ease-standard),
+      border 0.18s var(--ease-standard);
+  }
+  .cursor.is-expanded .cursor__ring {
+    width: 76px;
+    height: 76px;
+    border: 1px solid rgba(var(--accent-rgb) / 0.5);
+  }
+  .cursor.is-expanded.is-light .cursor__ring {
+    background: rgba(var(--fg-rgb) / 0.88);
+    border: 1.5px solid rgba(var(--bg-rgb) / 0.2);
+    backdrop-filter: blur(10px) saturate(1.5);
+    -webkit-backdrop-filter: blur(10px) saturate(1.5);
+    box-shadow: var(--shadow-cursor);
+  }
+  .cursor__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+    color: var(--color-accent);
+    opacity: 0;
+    transition: opacity 0.18s var(--ease-standard), color 0.18s var(--ease-standard);
+  }
+  .cursor.is-expanded.has-label .cursor__label {
+    opacity: 1;
+  }
+  .cursor.is-light .cursor__label {
+    color: var(--color-bg);
+  }
+  .cursor__dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-accent);
+    transition:
+      width 0.25s var(--ease-standard),
+      height 0.25s var(--ease-standard),
+      background 0.18s var(--ease-standard);
+  }
+  .cursor.is-light .cursor__dot {
+    background: var(--color-bg);
+  }
+  .cursor.is-expanded .cursor__dot {
+    width: 0;
+    height: 0;
+  }
+</style>
+
+<script>
+  const fine = window.matchMedia('(pointer: fine)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function linearize(c: number): number {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  function isLight(r: number, g: number, b: number): boolean {
+    return 0.2126 * linearize(r / 255) + 0.7152 * linearize(g / 255) + 0.0722 * linearize(b / 255) > 0.35;
+  }
+
+  function initCursor() {
+    const root = document.querySelector<HTMLElement>('[data-cursor-root]');
+    if (!root || !fine.matches || reducedMotion.matches) return;
+    if (root.dataset.ready === 'true') return;
+    root.dataset.ready = 'true';
+    document.body.classList.add('has-custom-cursor');
+
+    const ring = root.querySelector<HTMLElement>('[data-cursor-ring]')!;
+    const dot = root.querySelector<HTMLElement>('[data-cursor-dot]')!;
+    const label = root.querySelector<HTMLElement>('[data-cursor-label]')!;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    let x = -200;
+    let y = -200;
+    let raf = 0;
+
+    const setMode = (text: string, expanded: boolean, light: boolean) => {
+      root.classList.toggle('is-expanded', expanded);
+      root.classList.toggle('is-light', light);
+      root.classList.toggle('has-label', text.length > 0);
+      if (text) label.textContent = text;
+    };
+
+    const onMove = (e: MouseEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      const el = document.elementFromPoint(x, y) as HTMLElement | null;
+      if (!el) return;
+
+      const cursorEl = el.closest<HTMLElement>('[data-cursor]');
+      const text = cursorEl?.dataset.cursor ?? '';
+      let expanded = text.length > 0;
+      let light = false;
+
+      if (el.closest('[data-cursor-light]')) {
+        setMode(text, expanded, true);
+        return;
+      }
+
+      const img = (el.tagName === 'IMG' ? el : el.closest('img')) as HTMLImageElement | null;
+      if (img && img.complete && img.naturalWidth > 0) {
+        expanded = true;
+        if (ctx) {
+          try {
+            const rect = img.getBoundingClientRect();
+            const sx = Math.max(0, Math.min(img.naturalWidth - 1, (x - rect.left) * (img.naturalWidth / rect.width)));
+            const sy = Math.max(0, Math.min(img.naturalHeight - 1, (y - rect.top) * (img.naturalHeight / rect.height)));
+            ctx.clearRect(0, 0, 1, 1);
+            ctx.drawImage(img, sx, sy, 1, 1, 0, 0, 1, 1);
+            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+            light = isLight(r ?? 0, g ?? 0, b ?? 0);
+          } catch {
+            light = false;
+          }
+        }
+      } else if (expanded) {
+        let node: HTMLElement | null = el;
+        while (node && node !== document.body) {
+          const bg = getComputedStyle(node).backgroundColor;
+          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+            const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (m) light = isLight(Number(m[1]), Number(m[2]), Number(m[3]));
+            break;
+          }
+          node = node.parentElement;
+        }
+      }
+      setMode(text, expanded, light);
+    };
+
+    const loop = () => {
+      ring.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+      dot.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(loop);
+    };
+
+    window.addEventListener('mousemove', onMove, { passive: true });
+    document.addEventListener('mouseleave', () => {
+      x = -200;
+      y = -200;
+    });
+    raf = requestAnimationFrame(loop);
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener('mousemove', onMove);
+        root.dataset.ready = 'false';
+      },
+      { once: true },
+    );
+  }
+
+  document.addEventListener('astro:page-load', initCursor);
+</script>

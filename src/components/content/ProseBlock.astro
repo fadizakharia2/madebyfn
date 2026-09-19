@@ -1,0 +1,27 @@
+---
+import type { BlockProps } from 'astro-portabletext/types';
+import { slugify } from '@/lib/sanity/helpers';
+
+/** Block styles with heading ids so the article table of contents can link to them. */
+type Props = BlockProps;
+const { node } = Astro.props;
+const style = node.style ?? 'normal';
+const text = (node.children ?? [])
+  .map((child) => ('text' in child ? String(child.text) : ''))
+  .join('');
+const id = style === 'h2' || style === 'h3' ? slugify(text) : undefined;
+---
+
+{
+  style === 'h2' ? (
+    <h2 id={id}><slot /></h2>
+  ) : style === 'h3' ? (
+    <h3 id={id}><slot /></h3>
+  ) : style === 'h4' ? (
+    <h4><slot /></h4>
+  ) : style === 'blockquote' ? (
+    <blockquote><slot /></blockquote>
+  ) : (
+    <p><slot /></p>
+  )
+}

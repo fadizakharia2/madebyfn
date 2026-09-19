@@ -1,0 +1,37 @@
+---
+import { PortableText as Renderer } from 'astro-portabletext';
+import type { PortableTextBlock } from '@/lib/sanity/types';
+import ProseBlock from './ProseBlock.astro';
+import LinkMark from './LinkMark.astro';
+import ProseImage from './ProseImage.astro';
+import CodeBlock from './CodeBlock.astro';
+import Callout from './Callout.astro';
+import Video from './Video.astro';
+
+/**
+ * Renders Sanity Portable Text with the site's prose styling and the custom
+ * block types defined in the schema (image, code, callout, video).
+ */
+interface Props {
+  value: PortableTextBlock[] | null | undefined;
+  class?: string;
+}
+const { value, class: className = '' } = Astro.props;
+
+const components = {
+  block: ProseBlock,
+  mark: { link: LinkMark },
+  type: {
+    imageWithAlt: ProseImage,
+    codeBlock: CodeBlock,
+    callout: Callout,
+    videoEmbed: Video,
+  },
+};
+---
+
+{value && value.length > 0 && (
+  <div class:list={['prose', className]}>
+    <Renderer value={value} components={components} onMissingComponent={false} />
+  </div>
+)}

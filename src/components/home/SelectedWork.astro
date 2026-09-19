@@ -1,0 +1,257 @@
+---
+import type { Homepage, ProjectCard } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { pad2 } from '@/lib/sanity/helpers';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+/**
+ * Cinematic project showcase. Rows alternate between a full-bleed image with
+ * overlaid metadata and a split image/text panel, exactly as in the design.
+ */
+interface Props {
+  section: NonNullable<Homepage['selectedWork']>;
+  projects: ProjectCard[];
+}
+const { section, projects } = Astro.props;
+---
+
+<section class="work section section--bordered" id="selected-work">
+  <SectionHeader eyebrow={section.eyebrow} heading={section.heading} linkLabel={section.linkLabel} linkHref={routes.work} />
+
+  <div class="work__list">
+    {projects.map((p, i) => {
+      const split = i % 2 === 1;
+      const even = i % 2 === 0;
+      const tags = p.serviceTags?.length ? p.serviceTags : (p.services ?? []).map((s) => s.name);
+      return split ? (
+        <a href={routes.project(p.slug)} class="work__row work__row--split" data-cursor="View" aria-label={`${p.name} case study`}>
+          <div class="work__split-media">
+            <SanityPicture image={p.heroImage} aspect={16 / 11} widths={[640, 960, 1280, 1600]} sizes="(max-width: 899px) 100vw, 55vw" />
+            <div class="work__split-fade" aria-hidden="true"></div>
+          </div>
+          <div class="work__split-body">
+            <span class="work__num">{pad2(i + 1)}</span>
+            <h3 class="work__split-title">{p.name}</h3>
+            <span class="work__rule work__rule--split" aria-hidden="true"></span>
+            <p class="work__desc">{p.fullDescription || p.shortDescription}</p>
+            {p.headlineResult && <span class="work__result">{p.headlineResult}</span>}
+            {tags.length > 0 && (
+              <div class="tag-list work__tags">
+                {tags.map((t) => <span class="tag">{t}</span>)}
+              </div>
+            )}
+            <span class="work__link">View case study →</span>
+          </div>
+        </a>
+      ) : (
+        <a href={routes.project(p.slug)} class:list={['work__row work__row--full', even ? 'work__row--left' : 'work__row--right']} data-cursor="View" aria-label={`${p.name} case study`}>
+          <SanityPicture image={p.heroImage} aspect={1440 / 520} widths={[768, 1024, 1440, 1920]} sizes="100vw" priority={i === 0} />
+          <div class="work__shade" aria-hidden="true"></div>
+          <div class="work__overlay">
+            <span class="work__meta">{p.industryLabel || p.industry?.name}{p.year ? ` · ${p.year}` : ''}</span>
+            <h3 class="work__title">{p.name}</h3>
+            <span class="work__rule" aria-hidden="true"></span>
+            {p.headlineResult && <span class="work__result">{p.headlineResult}</span>}
+          </div>
+          <span class="work__ghost" aria-hidden="true">{pad2(i + 1)}</span>
+          {p.client?.name && <span class="work__client">{p.client.name}</span>}
+        </a>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .work__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .work__row {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    color: inherit;
+  }
+  .work__row :global(img) {
+    transition: transform var(--dur-image) var(--ease-out-expo);
+  }
+  .work__row:hover :global(img),
+  .work__row:focus-visible :global(img) {
+    transform: scale(1.03);
+  }
+
+  /* Full-bleed rows */
+  .work__row--full {
+    height: 520px;
+  }
+  .work__row--full :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .work__shade {
+    position: absolute;
+    inset: 0;
+  }
+  .work__row--left .work__shade {
+    background: linear-gradient(to right, rgba(var(--bg-rgb) / 0.8) 40%, transparent);
+  }
+  .work__row--right .work__shade {
+    background: linear-gradient(to left, rgba(var(--bg-rgb) / 0.8) 40%, transparent);
+  }
+  .work__overlay {
+    position: absolute;
+    bottom: var(--space-10);
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+  }
+  .work__row--left .work__overlay { left: var(--gutter); }
+  .work__row--right .work__overlay { right: var(--gutter); text-align: right; align-items: flex-end; }
+  .work__meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .work__title {
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 3vw, 48px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    margin-bottom: 8px;
+  }
+  .work__rule {
+    display: block;
+    height: 1px;
+    width: 60%;
+    background: rgba(var(--fg-rgb) / 0.2);
+    margin-bottom: 12px;
+    transition: width 0.6s var(--ease-standard);
+  }
+  .work__row:hover .work__rule,
+  .work__row:focus-visible .work__rule {
+    width: 100%;
+  }
+  .work__result {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-mono);
+  }
+  .work__ghost {
+    position: absolute;
+    top: var(--space-10);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(48px, 7vw, 96px);
+    color: rgba(var(--fg-rgb) / 0.06);
+    letter-spacing: var(--tracking-tight);
+    line-height: 1;
+  }
+  .work__row--left .work__ghost { right: var(--gutter); }
+  .work__row--right .work__ghost { left: var(--gutter); }
+  .work__client {
+    position: absolute;
+    top: var(--space-10);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: rgba(var(--fg-rgb) / 0.35);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .work__row--left .work__client { left: var(--gutter); }
+  .work__row--right .work__client { right: var(--gutter); }
+
+  /* Split row */
+  .work__row--split {
+    display: grid;
+    grid-template-columns: 55% 45%;
+  }
+  .work__split-media {
+    position: relative;
+    overflow: hidden;
+    height: 480px;
+  }
+  .work__split-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .work__split-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, var(--color-bg));
+  }
+  .work__split-body {
+    padding: 60px var(--gutter);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--color-bg-2);
+    border-left: 1px solid var(--border);
+  }
+  .work__num {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(18px, 1.5vw, 22px);
+    color: var(--color-muted);
+    margin-bottom: 8px;
+  }
+  .work__split-title {
+    font-family: var(--font-serif);
+    font-size: clamp(36px, 4vw, 52px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.05;
+    margin-bottom: var(--space-5);
+  }
+  .work__rule--split {
+    width: 40%;
+    background: rgba(var(--fg-rgb) / 0.08);
+    margin-bottom: var(--space-5);
+  }
+  .work__desc {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    margin-bottom: var(--space-7);
+  }
+  .work__tags {
+    margin-top: var(--space-5);
+  }
+  .work__link {
+    margin-top: var(--space-8);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .work__row--split:hover .work__link {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 1023px) {
+    .work__row--split { grid-template-columns: 1fr 1fr; }
+    .work__split-media { height: 420px; }
+    .work__split-body { padding: var(--space-10) var(--gutter); }
+  }
+  @media (max-width: 767px) {
+    .work__row--full { height: 420px; }
+    .work__overlay { max-width: calc(100% - 2 * var(--gutter)); }
+    .work__row--right .work__overlay { right: auto; left: var(--gutter); text-align: left; align-items: flex-start; }
+    .work__row--right .work__ghost { left: auto; right: var(--gutter); }
+    .work__row--right .work__client { right: auto; left: var(--gutter); }
+    .work__row--split { grid-template-columns: 1fr; }
+    .work__split-media { height: 260px; }
+    .work__split-fade { background: linear-gradient(to bottom, transparent 60%, var(--color-bg-2)); }
+    .work__split-body { border-left: 0; padding: var(--space-8) var(--gutter) var(--space-10); }
+  }
+</style>

@@ -1,0 +1,145 @@
+---
+import type { BlockArchitecture } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+import { hasImage } from '@/lib/sanity/image';
+import { pad2 } from '@/lib/sanity/helpers';
+
+/**
+ * Architecture diagram: an uploaded diagram, or a schematic drawn from the
+ * system layers — stacked tiers connected by a vertical data-flow line.
+ */
+interface Props {
+  block: BlockArchitecture;
+}
+const { block } = Astro.props;
+const layers = block.layers ?? [];
+---
+
+<section class="cs-section cs-section--alt arch">
+  <div class="gutter arch__inner">
+    <div class="arch__intro" data-reveal>
+      <Eyebrow text={block.eyebrow || 'Architecture'} class="cs-eyebrow" />
+      {block.heading && <h2 class="cs-display arch__heading">{block.heading}</h2>}
+      {block.caption && <p class="arch__caption">{block.caption}</p>}
+    </div>
+
+    {hasImage(block.image) ? (
+      <figure class="arch__figure" data-reveal>
+        <SanityPicture image={block.image} widths={[768, 1200, 1600]} sizes="(max-width: 1023px) 100vw, 60vw" />
+      </figure>
+    ) : (
+      layers.length > 0 && (
+        <ol class="arch__layers" data-reveal>
+          {layers.map((layer, i) => (
+            <li class="arch__layer">
+              <span class="arch__node" aria-hidden="true"></span>
+              <div class="arch__layer-body">
+                <div class="arch__layer-head">
+                  <span class="arch__layer-num">{pad2(i + 1)}</span>
+                  <span class="arch__layer-name">{layer.name}</span>
+                </div>
+                {layer.description && <p class="arch__layer-desc">{layer.description}</p>}
+                {layer.technologies && layer.technologies.length > 0 && (
+                  <div class="tag-list">
+                    {layer.technologies.map((t) => <span class="tag tag--light tag--xs">{t}</span>)}
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )
+    )}
+  </div>
+</section>
+
+<style>
+  .arch__inner {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+  .arch__heading {
+    font-size: var(--heading-lg);
+  }
+  .arch__caption {
+    margin-top: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+  .arch__figure :global(img) {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    height: auto;
+  }
+  .arch__layers {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: var(--space-8);
+  }
+  .arch__layers::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 24px;
+    bottom: 24px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--color-accent), rgba(var(--accent-rgb) / 0.1));
+  }
+  .arch__layer {
+    position: relative;
+  }
+  .arch__node {
+    position: absolute;
+    left: calc(-1 * var(--space-8) + 1px);
+    top: 24px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-accent);
+  }
+  .arch__layer:first-child .arch__node {
+    background: var(--color-accent);
+  }
+  .arch__layer-body {
+    background: var(--color-surface-glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-5) var(--space-6);
+  }
+  .arch__layer-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+  .arch__layer-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+  }
+  .arch__layer-name {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+  }
+  .arch__layer-desc {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.6;
+    margin-bottom: var(--space-3);
+  }
+  @media (max-width: 1023px) {
+    .arch__inner { grid-template-columns: 1fr; gap: var(--space-10); }
+  }
+</style>

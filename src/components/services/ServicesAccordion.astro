@@ -1,0 +1,317 @@
+---
+import type { Service, ServicesPage } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { pad2 } from '@/lib/sanity/helpers';
+
+/**
+ * Expandable capability rows. `variant="home"` is the compact homepage list;
+ * `variant="page"` is the full Services page with problems, engagement,
+ * technologies and related projects. One row open at a time; first open by
+ * default; deep-linkable via #slug.
+ */
+interface Props {
+  services: Service[];
+  variant: 'home' | 'page';
+  labels?: Pick<ServicesPage, 'problemsLabel' | 'engagementLabel' | 'technologiesLabel' | 'projectsLabel' | 'discussLabel'>;
+}
+const { services, variant, labels = {} } = Astro.props;
+const uid = variant === 'home' ? 'svc-home' : 'svc';
+---
+
+<div class:list={['accordion', `accordion--${variant}`, 'gutter']} data-accordion>
+  {services.map((svc, i) => {
+    const open = i === 0;
+    const tech = variant === 'home' ? (svc.homepageTechnologies ?? svc.technologies ?? []) : (svc.technologies ?? []);
+    return (
+      <article class:list={['accordion__row', { 'is-open': open }]} id={svc.slug} data-accordion-row>
+        <h3 class="accordion__heading">
+          <button
+            type="button"
+            class="accordion__trigger"
+            aria-expanded={open ? 'true' : 'false'}
+            aria-controls={`${uid}-panel-${i}`}
+            id={`${uid}-trigger-${i}`}
+            data-accordion-trigger
+          >
+            <span class="accordion__num">{pad2(i + 1)}</span>
+            <span class="accordion__title-wrap">
+              <span class="accordion__title">{svc.name}</span>
+              <span class="accordion__summary">{variant === 'home' ? svc.summary : svc.tagline}</span>
+            </span>
+            <span class="accordion__plus" aria-hidden="true">+</span>
+          </button>
+        </h3>
+
+        <div id={`${uid}-panel-${i}`} role="region" aria-labelledby={`${uid}-trigger-${i}`} class="accordion__panel" hidden={!open} data-accordion-panel>
+          <div class="accordion__panel-inner">
+            {variant === 'home' ? (
+              <Fragment>
+                <p class="accordion__desc">{svc.shortDescription}</p>
+                {tech.length > 0 && (
+                  <div>
+                    <p class="label accordion__label">Technologies</p>
+                    <div class="tag-list">
+                      {tech.map((t) => <span class="tag tag--light">{t.name}</span>)}
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            ) : (
+              <Fragment>
+                <div class="accordion__spacer" aria-hidden="true"></div>
+                <div class="accordion__main">
+                  <p class="accordion__what">{svc.longDescription || svc.shortDescription}</p>
+                  {svc.capabilities && svc.capabilities.length > 0 && (
+                    <div class="accordion__block">
+                      <p class="label accordion__label">What we build</p>
+                      <ul class="accordion__bullets">
+                        {svc.capabilities.map((c) => <li>{c}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {svc.typicalProblems && svc.typicalProblems.length > 0 && (
+                    <div class="accordion__block">
+                      <p class="label accordion__label">{labels.problemsLabel || 'Typical problems'}</p>
+                      <ul class="accordion__bullets">
+                        {svc.typicalProblems.map((p) => <li>{p}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {svc.engagement && (
+                    <div class="accordion__block accordion__engagement">
+                      <p class="label accordion__label">{labels.engagementLabel || 'Engagement'}</p>
+                      <p>{svc.engagement}</p>
+                    </div>
+                  )}
+                  <a href={routes.start} class="text-link text-link--accent">{labels.discussLabel || 'Discuss this service'} <span aria-hidden="true">→</span></a>
+                </div>
+                <div class="accordion__side">
+                  {tech.length > 0 && (
+                    <div class="accordion__block">
+                      <p class="label accordion__label">{labels.technologiesLabel || 'Technologies'}</p>
+                      <div class="tag-list">
+                        {tech.map((t) => <span class="tag tag--light">{t.name}</span>)}
+                      </div>
+                    </div>
+                  )}
+                  {svc.projects && svc.projects.length > 0 && (
+                    <div class="accordion__block">
+                      <p class="label accordion__label">{labels.projectsLabel || 'Related projects'}</p>
+                      <ul class="accordion__projects">
+                        {svc.projects.map((p) => (
+                          <li>
+                            <a href={p.slug ? routes.project(p.slug) : routes.work} class="accordion__project">{p.name} ↗</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </Fragment>
+            )}
+          </div>
+        </div>
+      </article>
+    );
+  })}
+</div>
+
+<style>
+  .accordion__row {
+    border-top: 1px solid var(--border);
+    scroll-margin-top: calc(var(--header-h) + var(--space-6));
+  }
+  .accordion__heading {
+    margin: 0;
+  }
+  .accordion__trigger {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: var(--space-8);
+    width: 100%;
+    text-align: left;
+    padding: var(--space-6) 0;
+  }
+  .accordion--page .accordion__trigger {
+    grid-template-columns: 80px 1fr auto;
+    gap: var(--space-6);
+    padding: var(--space-9) 0;
+  }
+  .accordion__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+  }
+  .accordion__title-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    min-width: 0;
+  }
+  .accordion--page .accordion__title-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .accordion__title {
+    font-family: var(--font-serif);
+    font-size: var(--heading-sm);
+    color: var(--color-fg-2);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.1;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .accordion--page .accordion__title {
+    font-size: var(--heading-lg);
+  }
+  .accordion__row.is-open .accordion__title,
+  .accordion__trigger:hover .accordion__title {
+    color: var(--color-fg);
+  }
+  .accordion__summary {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-mono);
+  }
+  .accordion__row.is-open .accordion__summary {
+    display: none;
+  }
+  .accordion__plus {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--color-muted);
+    transition: transform var(--dur-base) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+  }
+  .accordion--page .accordion__plus {
+    font-size: 18px;
+  }
+  .accordion__row.is-open .accordion__plus {
+    transform: rotate(45deg);
+    color: var(--color-accent);
+  }
+
+  .accordion__panel-inner {
+    display: grid;
+    gap: var(--space-10);
+  }
+  .accordion--home .accordion__panel-inner {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 0 var(--space-3) 56px;
+    margin-top: calc(-1 * var(--space-2));
+    padding-bottom: var(--space-6);
+  }
+  .accordion--page .accordion__panel-inner {
+    grid-template-columns: 80px 1fr 1fr;
+    gap: var(--space-8);
+    padding-bottom: var(--space-12);
+  }
+  .accordion__desc {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+  }
+  .accordion__label {
+    margin-bottom: var(--space-3);
+  }
+  .accordion__what {
+    font-size: var(--text-xl);
+    color: var(--color-fg-2);
+    line-height: 1.75;
+    margin-bottom: var(--space-8);
+  }
+  .accordion__block {
+    margin-bottom: var(--space-7);
+  }
+  .accordion__bullets li {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.5;
+    margin-bottom: var(--space-2);
+  }
+  .accordion__bullets li::before {
+    content: '–';
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+  .accordion__engagement p:last-child {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-mono);
+    line-height: 1.6;
+  }
+  .accordion__projects li + li {
+    margin-top: 6px;
+  }
+  .accordion__project {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .accordion__project:hover {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 1023px) {
+    .accordion--page .accordion__panel-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+    .accordion__spacer { display: none; }
+  }
+  @media (max-width: 767px) {
+    .accordion__trigger,
+    .accordion--page .accordion__trigger {
+      grid-template-columns: 32px 1fr auto;
+      gap: var(--space-4);
+    }
+    .accordion__title-wrap {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .accordion--home .accordion__panel-inner,
+    .accordion--page .accordion__panel-inner {
+      grid-template-columns: 1fr;
+      padding-left: 0;
+      gap: var(--space-6);
+    }
+  }
+</style>
+
+<script>
+  function initAccordions() {
+    document.querySelectorAll<HTMLElement>('[data-accordion]').forEach((root) => {
+      const rows = Array.from(root.querySelectorAll<HTMLElement>('[data-accordion-row]'));
+
+      const setOpen = (row: HTMLElement, open: boolean) => {
+        row.classList.toggle('is-open', open);
+        row.querySelector<HTMLButtonElement>('[data-accordion-trigger]')?.setAttribute('aria-expanded', String(open));
+        const panel = row.querySelector<HTMLElement>('[data-accordion-panel]');
+        if (panel) panel.hidden = !open;
+      };
+
+      rows.forEach((row) => {
+        row.querySelector<HTMLButtonElement>('[data-accordion-trigger]')?.addEventListener('click', () => {
+          const isOpen = row.classList.contains('is-open');
+          rows.forEach((r) => setOpen(r, false));
+          if (!isOpen) setOpen(row, true);
+        });
+      });
+
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        const target = rows.find((r) => r.id === hash);
+        if (target) {
+          rows.forEach((r) => setOpen(r, r === target));
+          target.scrollIntoView({ block: 'start' });
+        }
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', initAccordions);
+</script>

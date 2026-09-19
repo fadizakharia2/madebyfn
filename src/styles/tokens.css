@@ -1,0 +1,161 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   madebyfn design tokens
+   Extracted from the Figma Make design "Implement Website Design Prompt".
+   Every component references these custom properties; no raw values inline.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  /* Colour — surfaces */
+  --color-bg: #0a0a0b;          /* primary background */
+  --color-bg-2: #0d0d10;        /* secondary / alternating section background */
+  --color-surface: #111113;     /* code blocks, elevated hover */
+  --color-surface-2: #16161a;   /* floating hero cards */
+  --color-surface-3: #1c1c22;   /* highest elevation */
+  --color-surface-glass: rgba(16, 16, 20, 0.95);
+  --color-surface-overlay: rgba(10, 10, 11, 0.75);
+
+  /* Colour — foreground */
+  --color-fg: #f0ede8;          /* primary foreground */
+  --color-fg-2: #b8b4ac;        /* secondary foreground */
+  --color-muted: #5e5b56;       /* muted foreground */
+  --color-muted-2: #3d3a37;     /* faintest foreground */
+
+  /* Colour — accents & status */
+  --color-accent: #c9a87c;      /* warm brass */
+  --color-accent-2: #4a7a9b;    /* desaturated blue (code keywords) */
+  --color-success: #5cb85c;
+  --color-warning: #e67e22;
+  --color-error: #c0392b;
+  --color-error-fg: #e07a6d;
+
+  /* Colour — RGB channels for alpha composition */
+  --fg-rgb: 240 237 232;
+  --bg-rgb: 10 10 11;
+  --bg2-rgb: 13 13 16;
+  --accent-rgb: 201 168 124;
+
+  /* Borders */
+  --border: rgba(240, 237, 232, 0.07);
+  --border-subtle: rgba(240, 237, 232, 0.05);
+  --border-mid: rgba(240, 237, 232, 0.1);
+  --border-strong: rgba(240, 237, 232, 0.15);
+  --border-hover: rgba(240, 237, 232, 0.3);
+  --border-accent: rgba(201, 168, 124, 0.5);
+  --border-accent-soft: rgba(201, 168, 124, 0.3);
+  --accent-wash: rgba(201, 168, 124, 0.08);
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
+
+  /* Typography — families are injected by Astro's font pipeline as
+     --font-serif / --font-sans / --font-mono. */
+  --text-2xs: 0.5625rem;  /* 9px  — eyebrow, metadata */
+  --text-xs: 0.625rem;    /* 10px — mono labels */
+  --text-sm: 0.6875rem;   /* 11px — mono body */
+  --text-md: 0.75rem;     /* 12px */
+  --text-base: 0.8125rem; /* 13px — UI body */
+  --text-lg: 0.875rem;    /* 14px — body */
+  --text-xl: 0.9375rem;   /* 15px — lead */
+  --text-2xl: 1rem;       /* 16px — body large */
+  --text-3xl: 1.0625rem;  /* 17px — article standfirst */
+
+  --display-hero: clamp(52px, 6.5vw, 96px);
+  --display-page: clamp(52px, 7vw, 100px);
+  --display-section: clamp(42px, 5vw, 68px);
+  --display-cta: clamp(48px, 6vw, 88px);
+  --display-md: clamp(36px, 4vw, 60px);
+  --display-sm: clamp(32px, 4vw, 52px);
+  --heading-lg: clamp(28px, 3.5vw, 44px);
+  --heading-md: clamp(28px, 3vw, 40px);
+  --heading-sm: clamp(24px, 3vw, 36px);
+  --heading-xs: clamp(20px, 2.5vw, 30px);
+  --heading-2xs: clamp(18px, 2vw, 24px);
+  --wordmark-giant: clamp(80px, 14vw, 200px);
+
+  --tracking-tight: -0.04em;
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-mono: 0.04em;
+  --tracking-label: 0.08em;
+  --tracking-eyebrow: 0.18em;
+  --tracking-caps: 0.1em;
+  --tracking-wide: 0.14em;
+
+  --leading-none: 1;
+  --leading-display: 0.95;
+  --leading-tight: 1.05;
+  --leading-heading: 1.1;
+  --leading-snug: 1.3;
+  --leading-body: 1.7;
+  --leading-relaxed: 1.85;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-30: 120px;
+  --space-40: 160px;
+
+  --gutter: 48px;
+  --section-y: 120px;
+  --section-y-lg: 160px;
+  --header-h: 80px;
+  --reading-width: 720px;
+  --reading-width-lg: 760px;
+  --copy-width: 540px;
+  --grid-size: 56px;
+
+  /* Radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-pill: 999px;
+
+  /* Shadows (used sparingly — the design is flat) */
+  --shadow-cursor: 0 2px 24px rgba(0, 0, 0, 0.15);
+  --shadow-float: 0 24px 60px rgba(0, 0, 0, 0.35);
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: ease;
+  --dur-fast: 0.2s;
+  --dur-base: 0.3s;
+  --dur-slow: 0.5s;
+  --dur-reveal: 0.75s;
+  --dur-image: 0.8s;
+  --dur-cinematic: 1.2s;
+
+  /* Z-index scale */
+  --z-cursor: 9999;
+  --z-header: 100;
+  --z-menu: 99;
+  --z-raised: 1;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --gutter: 32px;
+    --section-y: 96px;
+    --section-y-lg: 120px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: 20px;
+    --section-y: 72px;
+    --section-y-lg: 96px;
+    --header-h: 68px;
+  }
+}

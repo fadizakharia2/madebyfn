@@ -1,0 +1,60 @@
+---
+import Eyebrow from './Eyebrow.astro';
+
+/** Top-of-page header shared by Work, Services, Studio and Insights. */
+interface Props {
+  eyebrow?: string | null;
+  title?: string | null;
+  intro?: string | null;
+  introWidth?: string;
+  bordered?: boolean;
+}
+const { eyebrow, title, intro, introWidth = 'var(--copy-width)', bordered = true } = Astro.props;
+---
+
+<header class:list={['page-header gutter', { 'page-header--bordered': bordered }]}>
+  <Eyebrow text={eyebrow} class="page-header__eyebrow" />
+  <h1 class="display page-header__title animate-fade-up">{title}</h1>
+  {intro && (
+    <p class="lead page-header__intro animate-fade-up" style={`max-width:${introWidth}`}>
+      {intro}
+    </p>
+  )}
+</header>
+
+<style>
+  .page-header {
+    padding-top: var(--space-20);
+    padding-bottom: var(--space-16);
+  }
+  .page-header--bordered {
+    border-bottom: 1px solid var(--border);
+  }
+  .page-header__eyebrow {
+    margin-bottom: var(--space-5);
+    opacity: 0;
+    animation: fade-up 0.7s var(--ease-standard) forwards;
+  }
+  .page-header__title {
+    font-size: var(--display-page);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-display);
+    margin-bottom: var(--space-10);
+    animation-delay: 0.1s;
+  }
+  .page-header__intro {
+    animation-delay: 0.2s;
+  }
+  @media (max-width: 767px) {
+    .page-header {
+      padding-top: var(--space-12);
+      padding-bottom: var(--space-10);
+    }
+    .page-header__title {
+      margin-bottom: var(--space-6);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .page-header__eyebrow { opacity: 1; animation: none; }
+  }
+</style>

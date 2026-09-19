@@ -1,0 +1,133 @@
+---
+import type { ProjectCard as ProjectCardType } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+/** Archive card used on the Work page grid and for related projects. */
+interface Props {
+  project: ProjectCardType;
+  priority?: boolean;
+}
+const { project: p, priority = false } = Astro.props;
+const tags = (p.technologies ?? []).slice(0, 3);
+---
+
+<a
+  href={routes.project(p.slug)}
+  class="pcard"
+  data-cursor="View"
+  data-industry={p.industry?.slug ?? ''}
+  data-services={(p.services ?? []).map((s) => s.slug).join(' ')}
+  data-year={p.year ?? ''}
+  aria-label={`${p.name} — ${p.shortDescription ?? 'case study'}`}
+>
+  <div class="pcard__media">
+    <SanityPicture image={p.heroImage} aspect={4 / 3} widths={[480, 800, 1200]} sizes="(max-width: 767px) 100vw, 50vw" priority={priority} filter="brightness(0.6) saturate(0.8)" />
+    {p.industry?.name && <span class="pcard__industry">{p.industry.name}</span>}
+    {p.year && <span class="pcard__year">{p.year}</span>}
+  </div>
+  <div class="pcard__body">
+    <h3 class="pcard__title">{p.name}</h3>
+    {p.client?.name && <p class="pcard__client">{p.client.name}</p>}
+    {p.shortDescription && <p class="pcard__desc">{p.shortDescription}</p>}
+    <div class="pcard__foot">
+      {p.headlineResult && <span class="pcard__result">{p.headlineResult}</span>}
+      {tags.length > 0 && (
+        <span class="tag-list">
+          {tags.map((t) => <span class="tag tag--xs">{t.name}</span>)}
+        </span>
+      )}
+    </div>
+  </div>
+</a>
+
+<style>
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-bg);
+    overflow: hidden;
+    transition: background var(--dur-fast) var(--ease-standard);
+  }
+  .pcard:hover {
+    background: var(--color-bg-2);
+  }
+  .pcard__media {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+  }
+  .pcard__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s var(--ease-out-expo);
+  }
+  .pcard:hover .pcard__media :global(img),
+  .pcard:focus-visible .pcard__media :global(img) {
+    transform: scale(1.05);
+  }
+  .pcard__industry,
+  .pcard__year {
+    position: absolute;
+    top: var(--space-6);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .pcard__industry {
+    left: var(--space-6);
+    color: var(--color-accent);
+  }
+  .pcard__year {
+    right: var(--space-6);
+    color: rgba(var(--fg-rgb) / 0.3);
+    letter-spacing: var(--tracking-label);
+  }
+  .pcard__body {
+    padding: var(--space-8) var(--space-9);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .pcard__title {
+    font-family: var(--font-serif);
+    font-size: var(--heading-sm);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    margin-bottom: 8px;
+  }
+  .pcard__client {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-mono);
+    margin-bottom: 14px;
+  }
+  .pcard__desc {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+    line-height: 1.65;
+    margin-bottom: var(--space-5);
+    flex: 1;
+  }
+  .pcard__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .pcard__result {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-mono);
+  }
+  @media (max-width: 767px) {
+    .pcard__media { height: 240px; }
+    .pcard__body { padding: var(--space-6) var(--space-5) var(--space-8); }
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+import type { Testimonial } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { hasImage } from '@/lib/sanity/image';
+import SanityPicture from './SanityPicture.astro';
+
+/** Italic serif quote with the brass rule and attribution used throughout. */
+interface Props {
+  testimonial: Testimonial;
+  size?: 'md' | 'lg';
+  showProject?: boolean;
+}
+const { testimonial: t, size = 'md', showProject = false } = Astro.props;
+const attribution = [t.role, t.company].filter(Boolean).join(' · ');
+---
+
+<figure class:list={['testimonial', `testimonial--${size}`]}>
+  <blockquote class="testimonial__quote">“{t.quote}”</blockquote>
+  <figcaption class="testimonial__meta">
+    <span class="testimonial__rule" aria-hidden="true"></span>
+    {hasImage(t.avatar) && (
+      <span class="testimonial__avatar">
+        <SanityPicture image={t.avatar} aspect={1} widths={[80, 160]} sizes="40px" />
+      </span>
+    )}
+    <span>
+      <span class="testimonial__person">{t.person}</span>
+      {attribution && <span class="testimonial__role">{attribution}</span>}
+      {showProject && t.project?.slug && (
+        <a href={routes.project(t.project.slug)} class="testimonial__project">{t.project.name} ↗</a>
+      )}
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .testimonial__quote {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(20px, 2.5vw, 28px);
+    line-height: 1.5;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+    margin-bottom: var(--space-8);
+    text-wrap: pretty;
+  }
+  .testimonial--lg .testimonial__quote {
+    font-size: clamp(20px, 2.5vw, 30px);
+  }
+  .testimonial__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+  .testimonial__rule {
+    width: 1px;
+    height: 40px;
+    background: var(--color-accent);
+    flex-shrink: 0;
+  }
+  .testimonial__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .testimonial__person {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--color-fg);
+    margin-bottom: 2px;
+  }
+  .testimonial__role {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+  .testimonial__project {
+    display: inline-block;
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+</style>

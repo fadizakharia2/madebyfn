@@ -1,0 +1,143 @@
+---
+import type { Developer, Homepage } from '@/lib/sanity/types';
+import { routes } from '@/lib/routes';
+import { pad2 } from '@/lib/sanity/helpers';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+/** Editorial two-column introduction to the developers. */
+interface Props {
+  section: NonNullable<Homepage['team']>;
+  developers: Developer[];
+}
+const { section, developers } = Astro.props;
+---
+
+<section class="devs section section--alt section--bordered" id="developers">
+  <SectionHeader eyebrow={section.eyebrow} heading={section.heading} maxWidth="600px" />
+
+  <div class="devs__grid">
+    {developers.map((dev, i) => (
+      <article class="dev" data-reveal data-reveal-delay={String(i)}>
+        <div class="dev__portrait">
+          <SanityPicture image={dev.portrait} aspect={3 / 2} widths={[600, 900, 1200]} sizes="(max-width: 767px) 100vw, 50vw" filter="grayscale(30%) brightness(0.7)" />
+          <div class="dev__fade" aria-hidden="true"></div>
+          <span class="dev__num" aria-hidden="true">{pad2(i + 1)}</span>
+        </div>
+        <div class="dev__body">
+          <h3 class="dev__name"><a href={routes.developer(dev.slug)}>{dev.name}</a></h3>
+          <p class="dev__role">{dev.shortTitle || dev.title}</p>
+          {dev.shortBio && <p class="dev__bio">{dev.shortBio}</p>}
+          {dev.skills && dev.skills.length > 0 && (
+            <div class="dev__stack">
+              <p class="label dev__label">Stack</p>
+              <div class="tag-list">
+                {dev.skills.map((s) => <span class="tag tag--light tag--xs">{s}</span>)}
+              </div>
+            </div>
+          )}
+          <div class="dev__links">
+            {dev.github && <a href={dev.github} target="_blank" rel="noopener" class="dev__link">GitHub ↗</a>}
+            {dev.linkedin && <a href={dev.linkedin} target="_blank" rel="noopener" class="dev__link">LinkedIn ↗</a>}
+            {dev.website && <a href={dev.website} target="_blank" rel="noopener" class="dev__link">Website ↗</a>}
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .devs__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--border);
+  }
+  .dev:first-child {
+    border-right: 1px solid var(--border);
+  }
+  .dev__portrait {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+  }
+  .dev__portrait :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter var(--dur-image) var(--ease-out-expo);
+  }
+  .dev:hover .dev__portrait :global(img) {
+    filter: grayscale(0%) brightness(0.8) !important;
+  }
+  .dev__fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--color-bg-2) 0%, transparent 50%);
+  }
+  .dev__num {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    font-family: var(--font-mono);
+    font-style: italic;
+    font-size: clamp(48px, 6vw, 80px);
+    color: rgba(var(--fg-rgb) / 0.06);
+    letter-spacing: var(--tracking-tight);
+    line-height: 1;
+  }
+  .dev__body {
+    padding: var(--space-10) var(--gutter);
+  }
+  .dev__name {
+    font-family: var(--font-serif);
+    font-size: var(--heading-md);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .dev__role {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    margin-bottom: var(--space-6);
+  }
+  .dev__bio {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    margin-bottom: var(--space-7);
+  }
+  .dev__stack {
+    margin-bottom: var(--space-6);
+  }
+  .dev__label {
+    margin-bottom: 10px;
+  }
+  .dev__links {
+    display: flex;
+    gap: var(--space-4);
+  }
+  .dev__link {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-mid);
+    padding-bottom: 2px;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .dev__link:hover {
+    color: var(--color-accent);
+  }
+  @media (max-width: 767px) {
+    .devs__grid { grid-template-columns: 1fr; }
+    .dev:first-child { border-right: 0; border-bottom: 1px solid var(--border); }
+    .dev__portrait { height: 320px; }
+    .dev__body { padding: var(--space-8) var(--gutter) var(--space-10); }
+  }
+</style>

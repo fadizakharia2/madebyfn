@@ -1,0 +1,67 @@
+---
+import Eyebrow from './Eyebrow.astro';
+import type { Metric } from '@/lib/sanity/types';
+
+/** Results block: eyebrow + up to six brass serif figures with mono labels. */
+interface Props {
+  eyebrow?: string | null;
+  metrics: Metric[];
+  bordered?: boolean;
+}
+const { eyebrow = 'Results', metrics, bordered = true } = Astro.props;
+---
+
+<section class:list={['metric-grid gutter', { 'metric-grid--bordered': bordered }]} data-reveal>
+  <Eyebrow text={eyebrow} class="metric-grid__eyebrow" />
+  <dl class="metric-grid__items" style={`--cols:${Math.min(metrics.length, 4)}`}>
+    {metrics.map((m, i) => (
+      <div class="metric" data-reveal data-reveal-delay={String(Math.min(i, 5))}>
+        <dt class="metric__label">{m.label}</dt>
+        <dd class="metric__value">{m.value}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<style>
+  .metric-grid {
+    padding-block: var(--space-20);
+  }
+  .metric-grid--bordered {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .metric-grid__eyebrow {
+    margin-bottom: var(--space-12);
+  }
+  .metric-grid__items {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: var(--space-10);
+  }
+  .metric {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-3);
+  }
+  .metric__value {
+    font-family: var(--font-serif);
+    font-size: clamp(36px, 5vw, 56px);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-display);
+    line-height: 1;
+  }
+  .metric__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  @media (max-width: 767px) {
+    .metric-grid__items {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-8);
+    }
+  }
+</style>

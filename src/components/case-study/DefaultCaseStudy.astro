@@ -1,0 +1,113 @@
+---
+import type { Project } from '@/lib/sanity/types';
+import MetricGrid from '@/components/ui/MetricGrid.astro';
+import TestimonialQuote from '@/components/ui/TestimonialQuote.astro';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+import Video from '@/components/content/Video.astro';
+
+/**
+ * Fallback case-study layout used when a project has no composed blocks:
+ * the story summary fields as reading-width modules, the gallery, metrics
+ * and testimonials — the structure from the design's case study page.
+ */
+interface Props {
+  project: Project;
+}
+const { project } = Astro.props;
+
+const modules = [
+  { heading: 'The challenge', body: project.challenge },
+  { heading: 'Our approach', body: project.strategy },
+  { heading: 'The solution', body: project.solution },
+  { heading: 'Architecture', body: project.architecture },
+  { heading: 'Design', body: project.design },
+  { heading: 'Engineering', body: project.engineering },
+  { heading: 'The result', body: project.results },
+].filter((m): m is { heading: string; body: string } => Boolean(m.body));
+
+const gallery = project.gallery ?? [];
+const metrics = project.metrics ?? [];
+const testimonials = project.testimonials ?? [];
+---
+
+{modules.length > 0 && (
+  <div class="cs-reading default-cs__modules">
+    {modules.map((m) => (
+      <section class="default-cs__module" data-reveal>
+        <h2 class="cs-heading">{m.heading}</h2>
+        <p class="default-cs__body">{m.body}</p>
+      </section>
+    ))}
+  </div>
+)}
+
+{project.video?.url && (
+  <section class="default-cs__video" data-reveal>
+    <Video video={project.video} />
+  </section>
+)}
+
+{gallery.length > 0 && (
+  <div class="default-cs__gallery">
+    {gallery.map((img, i) => (
+      <figure class:list={['default-cs__figure', { 'default-cs__figure--full': i === 0 }]}>
+        <SanityPicture image={img} aspect={i === 0 ? 1800 / 700 : 4 / 3} widths={[768, 1200, 1800]} sizes={i === 0 ? '100vw' : '(max-width: 767px) 100vw, 50vw'} filter="brightness(0.6) saturate(0.7)" />
+      </figure>
+    ))}
+  </div>
+)}
+
+{metrics.length > 0 && <MetricGrid eyebrow="Results" metrics={metrics} />}
+
+{testimonials.map((t) => (
+  <section class="cs-section cs-section--alt gutter" data-reveal>
+    <div class="default-cs__testimonial">
+      <TestimonialQuote testimonial={t} />
+    </div>
+  </section>
+))}
+
+<style>
+  .default-cs__modules {
+    padding-block: var(--space-20);
+  }
+  .default-cs__module + .default-cs__module {
+    margin-top: var(--space-16);
+  }
+  .default-cs__body {
+    font-size: var(--text-2xl);
+    color: var(--color-fg-2);
+    line-height: 1.8;
+  }
+  .default-cs__video {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 0 var(--gutter) var(--space-20);
+  }
+  .default-cs__gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+  .default-cs__figure {
+    overflow: hidden;
+    height: 360px;
+  }
+  .default-cs__figure--full {
+    grid-column: 1 / -1;
+    height: 480px;
+  }
+  .default-cs__figure :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .default-cs__testimonial {
+    max-width: 680px;
+  }
+  @media (max-width: 767px) {
+    .default-cs__gallery { grid-template-columns: 1fr; }
+    .default-cs__figure, .default-cs__figure--full { height: 260px; }
+  }
+</style>

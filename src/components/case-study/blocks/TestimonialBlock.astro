@@ -1,0 +1,23 @@
+---
+import type { BlockTestimonial } from '@/lib/sanity/types';
+import TestimonialQuote from '@/components/ui/TestimonialQuote.astro';
+
+interface Props {
+  block: BlockTestimonial;
+}
+const { block } = Astro.props;
+---
+
+{block.testimonial && (
+  <section class="cs-section cs-section--alt gutter" data-reveal>
+    <div class="testimonial-block__inner">
+      <TestimonialQuote testimonial={block.testimonial} />
+    </div>
+  </section>
+)}
+
+<style>
+  .testimonial-block__inner {
+    max-width: 680px;
+  }
+</style>

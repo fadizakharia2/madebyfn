@@ -1,0 +1,40 @@
+---
+import Eyebrow from './Eyebrow.astro';
+import { lines } from '@/lib/sanity/helpers';
+
+/**
+ * Section intro used on every homepage section: eyebrow + serif display
+ * heading, with an optional mono text link aligned to the baseline.
+ */
+interface Props {
+  eyebrow?: string | null;
+  heading?: string | null;
+  linkLabel?: string | null;
+  linkHref?: string;
+  maxWidth?: string;
+  class?: string;
+}
+const { eyebrow, heading, linkLabel, linkHref, maxWidth, class: className = '' } = Astro.props;
+const headingLines = lines(heading);
+---
+
+<div class:list={['section-header gutter', className]} data-reveal>
+  <div>
+    <Eyebrow text={eyebrow} />
+    {headingLines.length > 0 && (
+      <h2 class="display" style={maxWidth ? `max-width:${maxWidth}` : undefined}>
+        {headingLines.map((line, i) => (
+          <Fragment>
+            {line}
+            {i < headingLines.length - 1 && <br />}
+          </Fragment>
+        ))}
+      </h2>
+    )}
+  </div>
+  {linkLabel && linkHref && (
+    <a href={linkHref} class="text-link">
+      {linkLabel} <span aria-hidden="true">→</span>
+    </a>
+  )}
+</div>

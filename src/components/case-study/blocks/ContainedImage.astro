@@ -1,0 +1,34 @@
+---
+import type { BlockContainedImage } from '@/lib/sanity/types';
+import SanityPicture from '@/components/ui/SanityPicture.astro';
+
+interface Props {
+  block: BlockContainedImage;
+}
+const { block } = Astro.props;
+---
+
+<figure class="cs-reading cs-section cs-section--tight contained" data-reveal>
+  <div class="contained__frame">
+    <SanityPicture image={block.image} widths={[720, 1080, 1440]} sizes="(max-width: 767px) 100vw, 720px" />
+  </div>
+  {block.image.caption && <figcaption class="contained__caption">{block.image.caption}</figcaption>}
+</figure>
+
+<style>
+  .contained__frame {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .contained__frame :global(img) {
+    height: auto;
+  }
+  .contained__caption {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+  }
+</style>

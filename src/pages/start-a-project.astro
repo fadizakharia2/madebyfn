@@ -1,0 +1,152 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import InquiryForm from '@/components/forms/InquiryForm';
+import FaqList from '@/components/faq/FaqList.astro';
+import { getFaqs, getGlobals, getStartProjectPage } from '@/lib/sanity/loaders';
+import { breadcrumbJsonLd, buildMeta, faqJsonLd } from '@/lib/seo';
+import { routes } from '@/lib/routes';
+
+const [{ settings }, page, faqs] = await Promise.all([getGlobals(), getStartProjectPage(), getFaqs()]);
+const showFaqs = page.faq?.enabled !== false && faqs.length > 0;
+const meta = buildMeta({ settings, seo: page.seo, title: 'Start a Project', description: page.intro, path: routes.start });
+const jsonLd = [
+  breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Start a Project', path: routes.start }]),
+  ...(showFaqs ? [faqJsonLd(faqs)] : []),
+];
+const icons: Record<string, string> = { filled: '●', half: '◐', outline: '○' };
+---
+
+<BaseLayout meta={meta} jsonLd={jsonLd} hideFooter>
+  <div class="start">
+    <aside class="start__info">
+      <Eyebrow text={page.eyebrow} class="start__eyebrow" />
+      <h1 class="start__title animate-fade-up">{page.title}</h1>
+      {page.intro && <p class="start__intro animate-fade-up" style="animation-delay:0.1s">{page.intro}</p>}
+
+      {page.infoItems && page.infoItems.length > 0 && (
+        <dl class="start__facts">
+          {page.infoItems.map((item) => (
+            <div class="fact">
+              <span class="fact__icon" aria-hidden="true">{icons[item.icon ?? 'filled'] ?? '●'}</span>
+              <div>
+                <dt class="fact__label">{item.label}</dt>
+                <dd class="fact__value">{item.value}</dd>
+              </div>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      <div class="start__email">
+        <p class="label start__email-label">{page.emailLabel || 'Or email directly'}</p>
+        <a href={`mailto:${settings.primaryEmail}`} class="start__email-link">{settings.primaryEmail}</a>
+      </div>
+    </aside>
+
+    <div class="start__form">
+      <InquiryForm
+        client:load
+        projectTypes={page.projectTypes ?? []}
+        budgetRanges={page.budgetRanges ?? []}
+        timelines={page.timelines ?? []}
+        descriptionPlaceholder={page.descriptionPlaceholder ?? 'Tell us what you are building...'}
+        referralPlaceholder={page.referralPlaceholder ?? ''}
+        submitLabel={page.submitLabel ?? 'Send Project Inquiry'}
+        footnote={page.footnote ?? undefined}
+        successHeading={page.successHeading ?? 'We will be in touch.'}
+        successCopy={page.successCopy ?? undefined}
+        successLinkLabel={page.successLinkLabel ?? 'Back to home'}
+        errorMessage={page.errorMessage ?? 'Something went wrong. Please try again or email us directly.'}
+      />
+    </div>
+  </div>
+
+  {showFaqs && <FaqList faqs={faqs} eyebrow={page.faq?.eyebrow} heading={page.faq?.heading} />}
+</BaseLayout>
+
+<style>
+  .start {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    min-height: calc(100vh - var(--header-h));
+  }
+  .start__info {
+    padding: var(--space-20) var(--gutter);
+    background: var(--color-bg-2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .start__eyebrow {
+    margin-bottom: var(--space-6);
+  }
+  .start__title {
+    font-family: var(--font-serif);
+    font-size: clamp(36px, 4vw, 52px);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.05;
+    margin-bottom: var(--space-6);
+  }
+  .start__intro {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.75;
+    margin-bottom: var(--space-12);
+  }
+  .start__facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-bottom: var(--space-10);
+  }
+  .fact {
+    display: flex;
+    gap: var(--space-4);
+  }
+  .fact__icon {
+    font-family: var(--font-mono);
+    font-size: var(--text-md);
+    color: var(--color-accent);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .fact__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .fact__value {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+  }
+  .start__email {
+    margin-top: auto;
+  }
+  .start__email-label {
+    margin-bottom: 10px;
+  }
+  .start__email-link {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 2px;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .start__email-link:hover {
+    color: var(--color-accent);
+  }
+  .start__form {
+    padding: var(--space-20) var(--space-16);
+  }
+  @media (max-width: 1023px) {
+    .start { grid-template-columns: 1fr; }
+    .start__info { border-right: 0; border-bottom: 1px solid var(--border); padding-block: var(--space-12); }
+    .start__email { margin-top: var(--space-4); }
+    .start__form { padding: var(--space-12) var(--gutter); }
+  }
+</style>

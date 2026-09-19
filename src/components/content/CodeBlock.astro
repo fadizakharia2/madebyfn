@@ -1,0 +1,62 @@
+---
+import { highlightCode } from '@/lib/highlight';
+
+/**
+ * Code block styled like the design's editor cards. Works both as a Portable
+ * Text type component (receives `node`) and as a plain component (`code`).
+ */
+interface Props {
+  node?: { filename?: string | null; language?: string | null; code: string };
+  code?: { filename?: string | null; language?: string | null; code: string };
+  class?: string;
+}
+const source = Astro.props.node ?? Astro.props.code;
+const html = source ? highlightCode(source.code) : '';
+---
+
+{source && (
+  <figure class:list={['code-block', Astro.props.class]}>
+    {source.filename && <figcaption class="code-block__label">{source.filename}</figcaption>}
+    <pre class="code-block__pre" tabindex="0"><code class={`language-${source.language ?? 'text'}`} set:html={html} /></pre>
+  </figure>
+)}
+
+<style is:global>
+  .code-block {
+    background: var(--color-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-6);
+    margin-block: var(--space-9);
+    overflow: hidden;
+  }
+  .code-block__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-4);
+  }
+  .code-block__pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-md);
+    line-height: 1.7;
+    color: var(--color-fg-2);
+    overflow-x: auto;
+    margin: 0;
+  }
+  .code-block__pre code {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+  .tok-comment { color: var(--color-muted); }
+  .tok-string { color: var(--color-accent); }
+  .tok-keyword { color: var(--color-accent-2); }
+  .tok-literal { color: var(--color-success); }
+  .tok-number { color: var(--color-fg); }
+  .tok-ident { color: var(--color-fg-2); }
+</style>

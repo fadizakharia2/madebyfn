@@ -1,0 +1,99 @@
+---
+import type { Faq } from '@/lib/sanity/types';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+
+/** Accessible FAQ accordion using native <details>. */
+interface Props {
+  faqs: Faq[];
+  eyebrow?: string | null;
+  heading?: string | null;
+}
+const { faqs, eyebrow, heading } = Astro.props;
+---
+
+{faqs.length > 0 && (
+  <section class="faq gutter" data-reveal>
+    <div class="faq__intro">
+      <Eyebrow text={eyebrow} class="faq__eyebrow" />
+      {heading && <h2 class="faq__heading">{heading}</h2>}
+    </div>
+    <div class="faq__list">
+      {faqs.map((f) => (
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span>{f.question}</span>
+            <span class="faq__plus" aria-hidden="true">+</span>
+          </summary>
+          <p class="faq__a">{f.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .faq {
+    padding-block: var(--space-20);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-16);
+  }
+  .faq__eyebrow {
+    margin-bottom: var(--space-4);
+  }
+  .faq__heading {
+    font-family: var(--font-serif);
+    font-size: var(--display-sm);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.1;
+  }
+  .faq__item {
+    border-top: 1px solid var(--border);
+  }
+  .faq__item:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+  .faq__q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-5) 0;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    color: var(--color-fg-2);
+    letter-spacing: var(--tracking-snug);
+    cursor: pointer;
+    list-style: none;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+  .faq__q:hover,
+  .faq__item[open] .faq__q {
+    color: var(--color-fg);
+  }
+  .faq__plus {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--color-muted);
+    transition: transform var(--dur-base) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+  }
+  .faq__item[open] .faq__plus {
+    transform: rotate(45deg);
+    color: var(--color-accent);
+  }
+  .faq__a {
+    padding: 0 0 var(--space-6);
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.7;
+    max-width: 640px;
+  }
+  @media (max-width: 1023px) {
+    .faq { grid-template-columns: 1fr; gap: var(--space-8); }
+  }
+</style>

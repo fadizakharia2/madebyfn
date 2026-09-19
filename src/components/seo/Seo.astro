@@ -1,0 +1,40 @@
+---
+import type { PageMeta } from '@/lib/seo';
+import { compactJsonLd } from '@/lib/seo';
+
+interface Props {
+  meta: PageMeta;
+  jsonLd?: Array<Record<string, unknown>>;
+  favicon?: string | null;
+}
+const { meta, jsonLd = [], favicon } = Astro.props;
+---
+
+<title>{meta.title}</title>
+<meta name="description" content={meta.description} />
+<link rel="canonical" href={meta.canonical} />
+<meta name="robots" content={meta.noIndex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
+
+<meta property="og:type" content={meta.ogType} />
+<meta property="og:site_name" content={meta.siteName} />
+<meta property="og:title" content={meta.title} />
+<meta property="og:description" content={meta.description} />
+<meta property="og:url" content={meta.canonical} />
+<meta property="og:locale" content="en_GB" />
+{meta.ogImage && <meta property="og:image" content={meta.ogImage} />}
+{meta.ogImage && <meta property="og:image:width" content="1200" />}
+{meta.ogImage && <meta property="og:image:height" content="630" />}
+{meta.ogType === 'article' && meta.publishedAt && <meta property="article:published_time" content={meta.publishedAt} />}
+{meta.ogType === 'article' && meta.modifiedAt && <meta property="article:modified_time" content={meta.modifiedAt} />}
+
+<meta name="twitter:card" content={meta.ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={meta.title} />
+<meta name="twitter:description" content={meta.description} />
+{meta.ogImage && <meta name="twitter:image" content={meta.ogImage} />}
+{meta.twitterHandle && <meta name="twitter:site" content={meta.twitterHandle} />}
+
+<link rel="icon" href={favicon || '/favicon.svg'} type={favicon?.endsWith('.png') ? 'image/png' : 'image/svg+xml'} />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<meta name="theme-color" content="#0a0a0b" />
+
+{jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={compactJsonLd(data)} />)}

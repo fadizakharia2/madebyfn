@@ -1,0 +1,11 @@
+---
+import type { BlockMetrics } from '@/lib/sanity/types';
+import MetricGrid from '@/components/ui/MetricGrid.astro';
+
+interface Props {
+  block: BlockMetrics;
+}
+const { block } = Astro.props;
+---
+
+<MetricGrid eyebrow={block.eyebrow || 'Results'} metrics={block.metrics} />

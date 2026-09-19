@@ -1,0 +1,136 @@
+---
+import type { ProjectCard as ProjectCardType, WorkPage } from '@/lib/sanity/types';
+import ProjectCard from './ProjectCard.astro';
+
+/**
+ * Filterable project archive. Filters are rendered server-side from the
+ * projects' industries and services; a small script toggles visibility so
+ * the archive works without JavaScript (all projects shown) and filters
+ * instantly with it.
+ */
+interface Props {
+  projects: ProjectCardType[];
+  page: WorkPage;
+}
+const { projects, page } = Astro.props;
+
+const unique = <T extends { slug?: string | null; name: string }>(items: T[]) => {
+  const seen = new Map<string, T>();
+  for (const item of items) if (item.slug && !seen.has(item.slug)) seen.set(item.slug, item);
+  return Array.from(seen.values());
+};
+
+const industries = unique(projects.map((p) => p.industry).filter((i): i is NonNullable<typeof i> => Boolean(i)));
+const services = unique(projects.flatMap((p) => p.services ?? []));
+const allLabel = page.allLabel || 'All';
+---
+
+<div class="work-filters gutter" data-reveal data-work-filters>
+  <div class="work-filters__group">
+    <p class="label work-filters__label" id="filter-industry-label">{page.industryFilterLabel || 'Industry'}</p>
+    <div class="work-filters__chips" role="group" aria-labelledby="filter-industry-label">
+      <button type="button" class="chip" aria-pressed="true" data-filter="industry" data-value="">{allLabel}</button>
+      {industries.map((i) => (
+        <button type="button" class="chip" aria-pressed="false" data-filter="industry" data-value={i.slug}>{i.name}</button>
+      ))}
+    </div>
+  </div>
+  <div class="work-filters__group">
+    <p class="label work-filters__label" id="filter-service-label">{page.serviceFilterLabel || 'Service'}</p>
+    <div class="work-filters__chips" role="group" aria-labelledby="filter-service-label">
+      <button type="button" class="chip" aria-pressed="true" data-filter="service" data-value="">{allLabel}</button>
+      {services.map((s) => (
+        <button type="button" class="chip" aria-pressed="false" data-filter="service" data-value={s.slug}>{s.name}</button>
+      ))}
+    </div>
+  </div>
+</div>
+
+<div class="gutter">
+  <ul class="work-grid" data-work-grid aria-live="polite">
+    {projects.map((p, i) => (
+      <li class="work-grid__item" data-work-item>
+        <ProjectCard project={p} priority={i < 2} />
+      </li>
+    ))}
+  </ul>
+  <p class="work-grid__empty" data-work-empty hidden>{page.emptyMessage || 'No projects match this filter.'}</p>
+</div>
+
+<style>
+  .work-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-10);
+    padding-block: var(--space-8);
+    border-bottom: 1px solid var(--border);
+    background: var(--color-bg-2);
+  }
+  .work-filters__label {
+    margin-bottom: var(--space-3);
+  }
+  .work-filters__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+  .work-grid__item {
+    background: var(--color-bg);
+  }
+  .work-grid__item[hidden] {
+    display: none;
+  }
+  .work-grid__empty {
+    padding: var(--space-20) 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-md);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+  }
+  @media (max-width: 767px) {
+    .work-grid { grid-template-columns: 1fr; }
+    .work-filters { gap: var(--space-6); }
+  }
+</style>
+
+<script>
+  function initWorkFilters() {
+    const root = document.querySelector<HTMLElement>('[data-work-filters]');
+    const grid = document.querySelector<HTMLElement>('[data-work-grid]');
+    const empty = document.querySelector<HTMLElement>('[data-work-empty]');
+    if (!root || !grid || !empty) return;
+
+    const state = { industry: '', service: '' };
+    const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-work-item]'));
+
+    const apply = () => {
+      let visible = 0;
+      items.forEach((item) => {
+        const card = item.querySelector<HTMLElement>('.pcard');
+        const industry = card?.dataset.industry ?? '';
+        const services = (card?.dataset.services ?? '').split(' ');
+        const match = (!state.industry || industry === state.industry) && (!state.service || services.includes(state.service));
+        item.hidden = !match;
+        if (match) visible += 1;
+      });
+      empty.hidden = visible > 0;
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const kind = chip.dataset.filter as 'industry' | 'service';
+        state[kind] = chip.dataset.value ?? '';
+        root.querySelectorAll<HTMLButtonElement>(`[data-filter="${kind}"]`).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        apply();
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', initWorkFilters);
+</script>

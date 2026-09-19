@@ -1,0 +1,23 @@
+---
+import type { BlockVideo } from '@/lib/sanity/types';
+import Video from '@/components/content/Video.astro';
+
+interface Props {
+  block: BlockVideo;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-section cs-section--tight video-block" data-reveal>
+  <div class="video-block__inner">
+    <Video video={block.video} />
+  </div>
+</section>
+
+<style>
+  .video-block__inner {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+</style>

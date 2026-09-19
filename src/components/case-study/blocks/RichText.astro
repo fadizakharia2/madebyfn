@@ -1,0 +1,14 @@
+---
+import type { BlockRichText } from '@/lib/sanity/types';
+import PortableText from '@/components/content/PortableText.astro';
+
+interface Props {
+  block: BlockRichText;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-reading cs-section cs-section--tight" data-reveal>
+  {block.heading && <h2 class="cs-heading">{block.heading}</h2>}
+  <PortableText value={block.content} />
+</section>

@@ -1,0 +1,152 @@
+---
+import type { CaseStudyBlock } from '@/lib/sanity/types';
+import RichText from './blocks/RichText.astro';
+import Heading from './blocks/Heading.astro';
+import FullWidthImage from './blocks/FullWidthImage.astro';
+import ContainedImage from './blocks/ContainedImage.astro';
+import VideoBlock from './blocks/VideoBlock.astro';
+import TwoColumnMedia from './blocks/TwoColumnMedia.astro';
+import Gallery from './blocks/Gallery.astro';
+import Quote from './blocks/Quote.astro';
+import TestimonialBlock from './blocks/TestimonialBlock.astro';
+import Metrics from './blocks/Metrics.astro';
+import Architecture from './blocks/Architecture.astro';
+import CodeExample from './blocks/CodeExample.astro';
+import FeatureGrid from './blocks/FeatureGrid.astro';
+import Timeline from './blocks/Timeline.astro';
+import ProcessBlock from './blocks/ProcessBlock.astro';
+import StickyTextVisual from './blocks/StickyTextVisual.astro';
+import Comparison from './blocks/Comparison.astro';
+import CalloutBlock from './blocks/CalloutBlock.astro';
+import RelatedProjects from './blocks/RelatedProjects.astro';
+import CtaBlock from './blocks/CtaBlock.astro';
+
+/**
+ * Case study renderer. Maps every Sanity block type to its Astro module.
+ * Unknown block types are skipped with a build-time warning so a schema
+ * addition without a renderer never breaks a page.
+ */
+interface Props {
+  blocks: CaseStudyBlock[];
+}
+const { blocks } = Astro.props;
+
+const known = new Set([
+  'blockRichText',
+  'blockHeading',
+  'blockFullWidthImage',
+  'blockContainedImage',
+  'blockVideo',
+  'blockTwoColumnMedia',
+  'blockGallery',
+  'blockQuote',
+  'blockTestimonial',
+  'blockMetrics',
+  'blockArchitecture',
+  'blockCode',
+  'blockFeatureGrid',
+  'blockTimeline',
+  'blockProcess',
+  'blockStickyTextVisual',
+  'blockComparison',
+  'blockCallout',
+  'blockRelatedProjects',
+  'blockCta',
+]);
+for (const block of blocks) {
+  if (!known.has(block._type)) console.warn(`[case-study] No renderer for block type "${block._type}"`);
+}
+---
+
+<div class="case-blocks">
+  {blocks.map((block) => {
+    switch (block._type) {
+      case 'blockRichText':
+        return <RichText block={block} />;
+      case 'blockHeading':
+        return <Heading block={block} />;
+      case 'blockFullWidthImage':
+        return <FullWidthImage block={block} />;
+      case 'blockContainedImage':
+        return <ContainedImage block={block} />;
+      case 'blockVideo':
+        return <VideoBlock block={block} />;
+      case 'blockTwoColumnMedia':
+        return <TwoColumnMedia block={block} />;
+      case 'blockGallery':
+        return <Gallery block={block} />;
+      case 'blockQuote':
+        return <Quote block={block} />;
+      case 'blockTestimonial':
+        return <TestimonialBlock block={block} />;
+      case 'blockMetrics':
+        return <Metrics block={block} />;
+      case 'blockArchitecture':
+        return <Architecture block={block} />;
+      case 'blockCode':
+        return <CodeExample block={block} />;
+      case 'blockFeatureGrid':
+        return <FeatureGrid block={block} />;
+      case 'blockTimeline':
+        return <Timeline block={block} />;
+      case 'blockProcess':
+        return <ProcessBlock block={block} />;
+      case 'blockStickyTextVisual':
+        return <StickyTextVisual block={block} />;
+      case 'blockComparison':
+        return <Comparison block={block} />;
+      case 'blockCallout':
+        return <CalloutBlock block={block} />;
+      case 'blockRelatedProjects':
+        return <RelatedProjects block={block} />;
+      case 'blockCta':
+        return <CtaBlock block={block} />;
+      default:
+        return null;
+    }
+  })}
+</div>
+
+<style is:global>
+  .case-blocks {
+    display: flex;
+    flex-direction: column;
+  }
+  .cs-reading {
+    max-width: var(--reading-width);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .cs-section {
+    padding-block: var(--space-20);
+  }
+  .cs-section--tight {
+    padding-block: var(--space-12);
+  }
+  .cs-section--alt {
+    background: var(--color-bg-2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .cs-heading {
+    font-family: var(--font-serif);
+    font-size: var(--heading-sm);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-heading);
+    margin-bottom: var(--space-5);
+  }
+  .cs-eyebrow {
+    margin-bottom: var(--space-4);
+  }
+  .cs-display {
+    font-family: var(--font-serif);
+    font-size: var(--display-md);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+  @media (max-width: 767px) {
+    .cs-section { padding-block: var(--space-16); }
+  }
+</style>

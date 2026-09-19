@@ -1,0 +1,349 @@
+---
+import type { Developer, Navigation, SiteSettings } from '@/lib/sanity/types';
+import { resolveNavHref } from '@/lib/routes';
+import { lines } from '@/lib/sanity/helpers';
+import NewsletterForm from '@/components/forms/NewsletterForm';
+
+interface Props {
+  settings: SiteSettings;
+  navigation: Navigation;
+  developers: Developer[];
+}
+
+const { settings, navigation, developers } = Astro.props;
+const year = new Date().getFullYear();
+const availability = settings.availability;
+const statusClass =
+  availability?.status === 'limited' ? 'status__dot--busy' : availability?.status === 'unavailable' ? 'status__dot--closed' : '';
+const newsletter = settings.newsletter;
+const footerLinks = (navigation.footerItems ?? []).map((item) => ({ label: item.label ?? '', href: resolveNavHref(item) }));
+const legalLinks = (navigation.legalItems ?? []).map((item) => ({ label: item.label ?? '', href: resolveNavHref(item) }));
+---
+
+<footer class="site-footer">
+  <div class="site-footer__wordmark" aria-hidden="true">{settings.studioName}</div>
+
+  <div class="site-footer__grid gutter">
+    <div class="site-footer__brand">
+      <p class="site-footer__name">{settings.studioName}{settings.studioDescriptor ? ` ${settings.studioDescriptor}` : ''}</p>
+      {settings.footerDescription && <p class="site-footer__description">{settings.footerDescription}</p>}
+      <a href={`mailto:${settings.primaryEmail}`} class="site-footer__email">{settings.primaryEmail}</a>
+
+      {newsletter?.enabled && newsletter.heading && (
+        <div class="site-footer__newsletter">
+          <p class="site-footer__newsletter-heading">{newsletter.heading}</p>
+          {newsletter.copy && <p class="site-footer__newsletter-copy">{newsletter.copy}</p>}
+          <NewsletterForm
+            client:visible
+            placeholder={newsletter.placeholder ?? 'you@company.com'}
+            buttonLabel={newsletter.buttonLabel ?? 'Subscribe'}
+            successMessage={newsletter.successMessage ?? 'You are subscribed.'}
+            duplicateMessage={newsletter.duplicateMessage ?? undefined}
+            privacyNote={newsletter.privacyNote ?? undefined}
+            source="footer"
+          />
+        </div>
+      )}
+    </div>
+
+    <div>
+      <p class="site-footer__label">{settings.footerNavigationLabel || 'Navigation'}</p>
+      <ul class="site-footer__links">
+        {footerLinks.map((l) => (
+          <li><a href={l.href} class="site-footer__link">{l.label}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <p class="site-footer__label">{settings.footerDevelopersLabel || 'Developers'}</p>
+      <ul class="site-footer__devs">
+        {developers.map((dev) => (
+          <li class="site-footer__dev">
+            <span class="site-footer__dev-name">{dev.name}</span>
+            <span class="site-footer__dev-role">{dev.shortTitle || dev.title}</span>
+            <span class="site-footer__dev-links">
+              {dev.github && <a href={dev.github} target="_blank" rel="noopener" class="site-footer__dev-link">GitHub ↗</a>}
+              {dev.linkedin && <a href={dev.linkedin} target="_blank" rel="noopener" class="site-footer__dev-link">LinkedIn ↗</a>}
+              {dev.website && <a href={dev.website} target="_blank" rel="noopener" class="site-footer__dev-link">Site ↗</a>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <p class="site-footer__label">{settings.footerStatusLabel || 'Status'}</p>
+      <div class="site-footer__status">
+        {availability?.label && (
+          <div>
+            <span class="status site-footer__status-label">
+              <span class:list={['status__dot status__dot--pulse', statusClass]} aria-hidden="true"></span>
+              {availability.label}
+            </span>
+            {availability.detail && (
+              <p class="site-footer__status-detail">
+                {lines(availability.detail).map((line, i, arr) => (
+                  <Fragment>{line}{i < arr.length - 1 && <br />}</Fragment>
+                ))}
+              </p>
+            )}
+          </div>
+        )}
+        {settings.location && (
+          <div>
+            <p class="site-footer__location">{settings.location}</p>
+            <p class="site-footer__time">
+              <time data-local-time data-timezone={settings.timezone || 'Europe/London'}>--:--</time>
+              {settings.timezoneLabel && ` ${settings.timezoneLabel}`}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <div class="site-footer__bottom gutter">
+    <span class="site-footer__copyright">
+      © {year} {settings.legalName || settings.studioName}{settings.copyrightNote ? ` ${settings.copyrightNote}` : ''}
+    </span>
+    {legalLinks.length > 0 && (
+      <ul class="site-footer__legal">
+        {legalLinks.map((l) => (
+          <li><a href={l.href} class="site-footer__legal-link">{l.label}</a></li>
+        ))}
+      </ul>
+    )}
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-bg);
+    border-top: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .site-footer__wordmark {
+    padding: var(--space-20) 0 0 4vw;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-serif);
+    font-size: var(--wordmark-giant);
+    letter-spacing: var(--tracking-tight);
+    line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(var(--fg-rgb) / 0.1);
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: var(--space-12);
+    padding-block: var(--space-16);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-footer__name {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-fg);
+    margin-bottom: var(--space-3);
+  }
+  .site-footer__description {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    line-height: 1.6;
+    max-width: 240px;
+    margin-bottom: var(--space-6);
+  }
+  .site-footer__email {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    color: var(--color-fg-2);
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 2px;
+    transition: color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+  }
+  .site-footer__email:hover {
+    color: var(--color-accent);
+    border-color: var(--border-accent);
+  }
+  .site-footer__newsletter {
+    margin-top: var(--space-10);
+    max-width: 320px;
+  }
+  .site-footer__newsletter-heading {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+    margin-bottom: var(--space-2);
+  }
+  .site-footer__newsletter-copy {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+  }
+  .site-footer__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-5);
+  }
+  .site-footer__links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .site-footer__link {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .site-footer__link:hover {
+    color: var(--color-fg);
+  }
+  .site-footer__devs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .site-footer__dev {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .site-footer__dev-name {
+    font-size: var(--text-base);
+    color: var(--color-fg-2);
+  }
+  .site-footer__dev-role {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    color: var(--color-muted);
+    margin-bottom: 2px;
+  }
+  .site-footer__dev-links {
+    display: flex;
+    gap: var(--space-3);
+  }
+  .site-footer__dev-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .site-footer__dev-link:hover {
+    color: var(--color-accent);
+  }
+  .site-footer__status {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .site-footer__status-label {
+    color: var(--color-fg-2);
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-2);
+  }
+  .site-footer__status-detail {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+  .site-footer__location {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-1);
+  }
+  .site-footer__time {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-fg-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .site-footer__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding-block: var(--space-5);
+  }
+  .site-footer__copyright,
+  .site-footer__legal-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .site-footer__legal {
+    display: flex;
+    gap: var(--space-6);
+  }
+  .site-footer__legal-link {
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .site-footer__legal-link:hover {
+    color: var(--color-fg-2);
+  }
+
+  @media (max-width: 1023px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-10) var(--space-8);
+    }
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 767px) {
+    .site-footer__wordmark {
+      padding-top: var(--space-12);
+    }
+    .site-footer__grid {
+      grid-template-columns: 1fr;
+      padding-block: var(--space-12);
+    }
+    .site-footer__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+  }
+</style>
+
+<script>
+  function initClock() {
+    const nodes = document.querySelectorAll<HTMLElement>('[data-local-time]');
+    if (nodes.length === 0) return;
+    const update = () => {
+      nodes.forEach((node) => {
+        const tz = node.dataset.timezone || 'Europe/London';
+        try {
+          node.textContent = new Date().toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+          node.setAttribute('datetime', new Date().toISOString());
+        } catch {
+          node.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+      });
+    };
+    update();
+    const id = window.setInterval(update, 30_000);
+    document.addEventListener('astro:before-swap', () => window.clearInterval(id), { once: true });
+  }
+  document.addEventListener('astro:page-load', initClock);
+</script>

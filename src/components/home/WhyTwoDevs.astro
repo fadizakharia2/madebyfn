@@ -1,0 +1,110 @@
+---
+import type { Homepage } from '@/lib/sanity/types';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+
+/** Agency vs. direct senior team comparison, as a semantic table. */
+interface Props {
+  section: NonNullable<Homepage['model']>;
+  studioName: string;
+}
+const { section, studioName } = Astro.props;
+const rows = section.rows ?? [];
+const agencyLabel = section.agencyLabel || 'Traditional Agency';
+const studioLabel = section.studioLabel || studioName;
+---
+
+{rows.length > 0 && (
+  <section class="model section section--bordered" id="model">
+    <SectionHeader eyebrow={section.eyebrow} heading={section.heading} />
+    <div class="gutter">
+      <table class="model__table" data-reveal>
+        <thead>
+          <tr>
+            <th scope="col"><span class="visually-hidden">Aspect</span></th>
+            <th scope="col" class="model__col-agency">{agencyLabel}</th>
+            <th scope="col" class="model__col-studio">{studioLabel}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              <th scope="row" class="model__aspect">{row.aspect}</th>
+              <td class="model__agency" data-label={agencyLabel}>{row.agency}</td>
+              <td class="model__studio" data-label={studioLabel}>{row.studio}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+)}
+
+<style>
+  .model__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .model__table th,
+  .model__table td {
+    padding: var(--space-6) var(--space-8) var(--space-6) 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .model__table thead th {
+    padding-top: 0;
+    padding-bottom: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .model__table thead .model__col-studio {
+    color: var(--color-accent);
+  }
+  .model__table th:first-child,
+  .model__table td:first-child {
+    width: 200px;
+  }
+  .model__aspect {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: var(--color-muted);
+    padding-top: calc(var(--space-6) + 2px) !important;
+  }
+  .model__agency {
+    font-size: var(--text-lg);
+    color: var(--color-muted);
+    line-height: 1.6;
+    width: 40%;
+  }
+  .model__studio {
+    font-size: var(--text-lg);
+    color: var(--color-fg-2);
+    line-height: 1.6;
+  }
+  @media (max-width: 767px) {
+    .model__table thead { display: none; }
+    .model__table tr { display: block; padding-block: var(--space-5); border-bottom: 1px solid var(--border); }
+    .model__table th, .model__table td { display: block; border: 0; padding: 0; width: auto !important; }
+    .model__aspect { margin-bottom: var(--space-3); padding-top: 0 !important; }
+    .model__agency, .model__studio { padding-left: var(--space-4) !important; margin-top: var(--space-2); border-left: 1px solid var(--border) !important; }
+    .model__studio { border-left-color: var(--border-accent) !important; }
+    .model__agency::before, .model__studio::before {
+      content: attr(data-label);
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 4px;
+    }
+    .model__studio::before { color: var(--color-accent); }
+  }
+</style>

@@ -1,0 +1,63 @@
+---
+/**
+ * The design's button system: filled primary, hairline secondary, mono outline.
+ * Renders an <a> when `href` is given, otherwise a <button>.
+ */
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'mono';
+  size?: 'sm' | 'md' | 'base' | 'lg' | 'xl';
+  arrow?: '→' | '↓' | '↗' | false;
+  type?: 'button' | 'submit';
+  external?: boolean;
+  cursor?: string;
+  cursorLight?: boolean;
+  class?: string;
+  ariaLabel?: string;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'base',
+  arrow = false,
+  type = 'button',
+  external = false,
+  cursor,
+  cursorLight = false,
+  class: className = '',
+  ariaLabel,
+} = Astro.props;
+
+const classes = ['btn', `btn--${variant}`, size !== 'base' ? `btn--${size}` : '', className].filter(Boolean).join(' ');
+const rel = external ? 'noopener noreferrer' : undefined;
+const target = external ? '_blank' : undefined;
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class={classes}
+      rel={rel}
+      target={target}
+      data-cursor={cursor}
+      data-cursor-light={cursorLight ? 'true' : undefined}
+      aria-label={ariaLabel}
+    >
+      <slot />
+      {arrow && <span class="btn__arrow" aria-hidden="true">{arrow}</span>}
+    </a>
+  ) : (
+    <button
+      type={type}
+      class={classes}
+      data-cursor={cursor}
+      data-cursor-light={cursorLight ? 'true' : undefined}
+      aria-label={ariaLabel}
+    >
+      <slot />
+      {arrow && <span class="btn__arrow" aria-hidden="true">{arrow}</span>}
+    </button>
+  )
+}

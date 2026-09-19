@@ -1,0 +1,34 @@
+---
+import type { BlockQuote } from '@/lib/sanity/types';
+
+interface Props {
+  block: BlockQuote;
+}
+const { block } = Astro.props;
+---
+
+<section class="cs-section cs-section--alt gutter pull-quote" data-reveal>
+  <blockquote class="pull-quote__text">“{block.quote}”</blockquote>
+  {block.attribution && <p class="pull-quote__attr">— {block.attribution}</p>}
+</section>
+
+<style>
+  .pull-quote__text {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(24px, 3.2vw, 40px);
+    line-height: 1.35;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+    max-width: 880px;
+    text-wrap: pretty;
+  }
+  .pull-quote__attr {
+    margin-top: var(--space-6);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+</style>
