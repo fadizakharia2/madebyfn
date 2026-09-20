@@ -29,7 +29,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const resend = getResend();
   const { contactEmail, resendFromEmail } = serverEnv();
   if (!resend || !contactEmail) {
-    console.error('[inquiry] RESEND_API_KEY / CONTACT_EMAIL are not configured.');
+    // Names only, never values. Pinpoints a typo, a missing Production scope,
+    // or variables added after this deployment was built.
+    const missing = [!resend && 'RESEND_API_KEY', !contactEmail && 'CONTACT_EMAIL'].filter(Boolean).join(', ');
+    const visible = Object.keys(process.env).filter((k) => /^(RESEND_|CONTACT_)/.test(k)).join(', ') || 'none';
+    console.error(`[inquiry] Missing environment variables: ${missing}. Visible RESEND_/CONTACT_ names in this deployment: ${visible}. VERCEL_ENV=${process.env.VERCEL_ENV ?? 'n/a'}`);
     return json({ ok: false, code: 'not_configured', message: 'The inquiry form is not available right now. Please email us directly.' }, 503);
   }
 
