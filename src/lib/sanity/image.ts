@@ -35,7 +35,8 @@ function withUnsplashParams(url: string, { width, height, quality = 80, fit = 'c
     if (u.hostname.includes('unsplash.com')) {
       u.searchParams.set('w', String(width));
       if (height) u.searchParams.set('h', String(height));
-      u.searchParams.set('fit', fit === 'crop' ? 'crop' : 'max');
+      else u.searchParams.delete('h');
+      u.searchParams.set('fit', height && fit === 'crop' ? 'crop' : 'max');
       u.searchParams.set('auto', 'format');
       u.searchParams.set('q', String(quality));
     }
@@ -70,16 +71,19 @@ export function imageUrl(image: SanityImage, options: ImageOptions): string {
 export interface ResponsiveImage {
   src: string;
   srcset: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   alt: string;
   objectPosition: string;
   lqip?: string;
 }
 
 /**
- * Produce src + srcset for a given rendered aspect ratio.
- * `widths` are the candidate pixel widths; `aspect` is width / height.
+ * Produce src + srcset.
+ *
+ * By default the image keeps its natural proportions (nothing is cropped).
+ * Pass `aspect` (width / height) only where a crop is genuinely wanted,
+ * such as circular avatars.
  */
 export function responsiveImage(
   image: SanityImage,
@@ -89,13 +93,16 @@ export function responsiveImage(
     quality = 80,
   }: { widths?: number[]; aspect?: number; quality?: number } = {},
 ): ResponsiveImage {
-  const naturalAspect = image.asset?.metadata?.dimensions?.aspectRatio ?? 1.5;
-  const ratio = aspect ?? naturalAspect;
+  const naturalAspect = image.asset?.metadata?.dimensions?.aspectRatio ?? null;
   const largest = widths[widths.length - 1] ?? 1440;
-  const heightFor = (w: number) => Math.round(w / ratio);
+  // A height is only sent to the image CDN when a crop was asked for; otherwise
+  // the source is resized by width alone and nothing is cut off.
+  const cropHeight = (w: number) => (aspect ? Math.round(w / aspect) : undefined);
+  // width/height attributes reserve layout space; they describe proportions only.
+  const attrRatio = aspect ?? naturalAspect;
 
   const srcset = widths
-    .map((w) => `${imageUrl(image, { width: w, height: heightFor(w), quality })} ${w}w`)
+    .map((w) => `${imageUrl(image, { width: w, height: cropHeight(w), quality })} ${w}w`)
     .join(', ');
 
   const hotspot = image.hotspot;
@@ -104,10 +111,10 @@ export function responsiveImage(
     : '50% 50%';
 
   return {
-    src: imageUrl(image, { width: largest, height: heightFor(largest), quality }),
+    src: imageUrl(image, { width: largest, height: cropHeight(largest), quality }),
     srcset,
-    width: largest,
-    height: heightFor(largest),
+    width: attrRatio ? largest : undefined,
+    height: attrRatio ? Math.round(largest / attrRatio) : undefined,
     alt: image.alt ?? '',
     objectPosition,
     lqip: image.asset?.metadata?.lqip ?? undefined,

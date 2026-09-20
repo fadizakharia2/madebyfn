@@ -10,24 +10,24 @@ const tall = block.height === 'tall';
 ---
 
 <figure class:list={['fw-image', { 'fw-image--tall': tall }]}>
-  <SanityPicture image={block.image} aspect={tall ? 16 / 10 : 1800 / 700} widths={[768, 1200, 1800, 2400]} sizes="100vw" filter="brightness(0.6) saturate(0.7)" />
+  <SanityPicture image={block.image} widths={[768, 1200, 1800, 2400]} sizes="100vw" filter="brightness(0.6) saturate(0.7)" />
   {block.image.caption && <figcaption class="fw-image__caption gutter">{block.image.caption}</figcaption>}
 </figure>
 
 <style>
   .fw-image {
-    height: 480px;
     overflow: hidden;
     margin-block: 2px;
+    background: var(--color-bg-2);
   }
-  .fw-image--tall {
-    height: 70vh;
-    min-height: 480px;
-  }
+  /* Full image at its own proportions. Very tall images are fitted to the
+     viewport instead of running on for several screens. */
   .fw-image :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-height: 90vh;
+    object-fit: contain;
+  }
+  .fw-image--tall :global(img) {
+    max-height: none;
   }
   .fw-image__caption {
     padding-block: var(--space-3);
@@ -35,8 +35,5 @@ const tall = block.height === 'tall';
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-mono);
     color: var(--color-muted);
-  }
-  @media (max-width: 767px) {
-    .fw-image { height: 280px; }
   }
 </style>

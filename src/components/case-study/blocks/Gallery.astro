@@ -21,13 +21,13 @@ const [first, ...rest] = block.images;
   <div class="gallery__grid gutter">
     {first && (
       <figure class="gallery__item gallery__item--wide" data-reveal>
-        <SanityPicture image={first} aspect={16 / 9} widths={[768, 1200, 1800]} sizes="100vw" />
+        <SanityPicture image={first} widths={[768, 1200, 1800]} sizes="100vw" />
         {first.caption && <figcaption>{first.caption}</figcaption>}
       </figure>
     )}
     {rest.map((img, i) => (
       <figure class="gallery__item" data-reveal data-reveal-delay={String((i % 2) + 1)}>
-        <SanityPicture image={img} aspect={4 / 3} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" />
+        <SanityPicture image={img} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" />
         {img.caption && <figcaption>{img.caption}</figcaption>}
       </figure>
     ))}
@@ -42,6 +42,7 @@ const [first, ...rest] = block.images;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-6);
+    align-items: start;
   }
   .gallery__item--wide {
     grid-column: 1 / -1;
@@ -50,6 +51,9 @@ const [first, ...rest] = block.images;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     height: auto;
+    max-height: 85vh;
+    object-fit: contain;
+    background: var(--color-bg-2);
   }
   .gallery__item figcaption {
     margin-top: var(--space-3);

@@ -55,8 +55,8 @@ const next = project.nextProject;
   <article>
     <header class="cs-hero">
       <div class="cs-hero__media">
-        <SanityPicture image={project.mobileHeroImage ?? project.heroImage} aspect={2} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.4) saturate(0.6)" class="cs-hero__img--mobile" />
-        <SanityPicture image={project.heroImage} aspect={2} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.4) saturate(0.6)" class="cs-hero__img--desktop" />
+        <SanityPicture image={project.mobileHeroImage ?? project.heroImage} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.4) saturate(0.6)" class="cs-hero__img--mobile" />
+        <SanityPicture image={project.heroImage} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.4) saturate(0.6)" class="cs-hero__img--desktop" />
       </div>
       <div class="cs-hero__shade" aria-hidden="true"></div>
       <div class="cs-hero__content gutter">
@@ -99,22 +99,16 @@ const next = project.nextProject;
 </BaseLayout>
 
 <style>
+  /* The hero shows the whole project image; the title sits over its lower edge. */
   .cs-hero {
     position: relative;
-    height: 60vh;
-    min-height: 400px;
+    min-height: 360px;
     overflow: hidden;
-    margin-top: calc(-1 * var(--header-h));
-    padding-top: var(--header-h);
-  }
-  .cs-hero__media {
-    position: absolute;
-    inset: 0;
+    background: var(--color-bg-2);
   }
   .cs-hero__media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-height: 88vh;
+    object-fit: contain;
   }
   .cs-hero__media :global(.cs-hero__img--mobile) { display: none; }
   .cs-hero__shade {
@@ -207,10 +201,11 @@ const next = project.nextProject;
     line-height: 1;
   }
   @media (max-width: 767px) {
-    .cs-hero { height: 70vh; }
+    .cs-hero { min-height: 0; }
+    .cs-hero__shade { display: none; }
+    .cs-hero__content { position: static; padding-block: var(--space-8); }
     .cs-hero__media :global(.cs-hero__img--mobile) { display: block; }
     .cs-hero__media :global(.cs-hero__img--desktop) { display: none; }
-    .cs-hero__content { bottom: var(--space-10); }
     .cs-meta { gap: var(--space-8); }
   }
 </style>

@@ -102,7 +102,7 @@ export function joinNames(items: Array<{ name?: string | null } | null> | null |
     .join(', ');
 }
 
-/** Ampersand-style join of developer first names: "Marcus + Soren". */
+/** Ampersand-style join of developer first names: "Fadi + Nad". */
 export function teamLabel(devs: Array<{ name?: string | null } | null> | null | undefined): string {
   if (!devs || devs.length === 0) return '';
   return devs

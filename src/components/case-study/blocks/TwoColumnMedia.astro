@@ -10,8 +10,8 @@ const { block } = Astro.props;
 
 <figure class="two-col" data-reveal>
   <div class="two-col__grid">
-    <div class="two-col__cell"><SanityPicture image={block.left} aspect={4 / 3} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" /></div>
-    <div class="two-col__cell"><SanityPicture image={block.right} aspect={4 / 3} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" /></div>
+    <div class="two-col__cell"><SanityPicture image={block.left} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" /></div>
+    <div class="two-col__cell"><SanityPicture image={block.right} widths={[640, 960, 1280]} sizes="(max-width: 767px) 100vw, 50vw" /></div>
   </div>
   {block.caption && <figcaption class="two-col__caption gutter">{block.caption}</figcaption>}
 </figure>
@@ -27,11 +27,13 @@ const { block } = Astro.props;
   }
   .two-col__cell {
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-2);
   }
   .two-col__cell :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-height: 85vh;
+    object-fit: contain;
   }
   .two-col__caption {
     padding-block: var(--space-3);

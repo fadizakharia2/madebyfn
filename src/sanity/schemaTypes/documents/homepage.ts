@@ -49,7 +49,7 @@ export const homepage = defineType({
         defineField({ name: 'copy', title: 'Positioning copy', type: 'text', rows: 4, validation: (rule) => rule.required() }),
         defineField({ name: 'primaryCta', title: 'Primary button', type: 'link' }),
         defineField({ name: 'secondaryCta', title: 'Secondary button', type: 'link' }),
-        defineField({ name: 'availabilityText', title: 'Availability line', type: 'string', description: 'e.g. "Available for new engagements · Q1 2025". Falls back to site settings.' }),
+        defineField({ name: 'availabilityText', title: 'Availability line', type: 'string', description: 'e.g. "Available for new engagements · {quarter}". {quarter} becomes the current quarter automatically. Falls back to site settings.' }),
         defineField({
           name: 'backgroundVideo',
           title: 'Background video',
@@ -115,7 +115,7 @@ export const homepage = defineType({
               of: [defineArrayMember({ type: 'reference', to: [{ type: 'technology' }] })],
               validation: (rule) => rule.max(8),
             }),
-            defineField({ name: 'watermark', title: 'Corner watermark', type: 'string', description: 'e.g. "fn / Studio / 2025"' }),
+            defineField({ name: 'watermark', title: 'Corner watermark', type: 'string', description: 'e.g. "fn / Studio / {year}"' }),
           ],
         }),
       ],
@@ -128,7 +128,7 @@ export const homepage = defineType({
       group: 'sections',
       fields: [
         defineField({ name: 'items', title: 'Stats', type: 'array', of: [defineArrayMember({ type: 'metric' })], validation: (rule) => rule.max(6) }),
-        defineField({ name: 'note', title: 'Right-hand note', type: 'string', description: 'e.g. "London, UK · EST. 2022"' }),
+        defineField({ name: 'note', title: 'Right-hand note', type: 'string', description: 'e.g. "Beirut, Lebanon · EST. 2022"' }),
       ],
     }),
 

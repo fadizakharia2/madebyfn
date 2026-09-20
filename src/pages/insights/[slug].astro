@@ -76,7 +76,7 @@ const jsonLd = [
     </header>
 
     <div class="art-cover">
-      <SanityPicture image={article.coverImage} aspect={3} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.5) saturate(0.7)" />
+      <SanityPicture image={article.coverImage} widths={[768, 1200, 1800, 2400]} sizes="100vw" priority filter="brightness(0.5) saturate(0.7)" />
     </div>
 
     <div class="art-body gutter">
@@ -212,13 +212,14 @@ const jsonLd = [
     letter-spacing: var(--tracking-mono);
   }
   .art-cover {
-    height: 400px;
     overflow: hidden;
+    background: var(--color-bg-2);
   }
   .art-cover :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 1200px;
+    max-height: 80vh;
+    margin-inline: auto;
+    object-fit: contain;
   }
   .art-body {
     padding-block: var(--space-16);
@@ -341,7 +342,6 @@ const jsonLd = [
   }
   @media (max-width: 767px) {
     .art-head { padding-top: var(--space-10); }
-    .art-cover { height: 240px; }
     .related__grid { grid-template-columns: 1fr; }
     .rel { padding: var(--space-8) var(--space-5); }
     .bio { flex-direction: column; gap: var(--space-4); }

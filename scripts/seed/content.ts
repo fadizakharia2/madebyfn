@@ -188,56 +188,53 @@ const clients: SeedDocument[] = [
 
 const developers: SeedDocument[] = [
   {
-    _id: 'developer-marcus-chen',
+    _id: 'developer-fadi-zakharia',
     _type: 'developer',
-    name: 'Marcus Chen',
-    slug: { current: 'marcus-chen' },
+    name: 'Fadi Zakharia',
+    slug: { current: 'fadi-zakharia' },
     title: 'Backend & Systems Architecture',
     shortTitle: 'Backend & Architecture',
-    portrait: image(unsplash(IMG.marcus, 1200, 1600), 'Portrait of Marcus Chen'),
+    portrait: image(unsplash(IMG.marcus, 1200, 1600), 'Portrait of Fadi Zakharia'),
     shortBio:
-      'Marcus brings 7 years of production backend engineering — from financial systems processing billions of transactions to AI infrastructure serving millions of requests. He thinks in systems before writing a single line.',
+      'Fadi brings 7 years of production backend engineering — from financial systems processing billions of transactions to AI infrastructure serving millions of requests. He thinks in systems before writing a single line.',
     longBio:
-      'Before madebyfn, Marcus led backend engineering at a Series B fintech, where he built the data infrastructure that processed $3B in transactions. Prior to that, 3 years building distributed systems at a scale-up infrastructure company. He thinks about data models the way architects think about load-bearing walls — as decisions that will outlast everything built on top of them.',
+      'Before madebyfn, Fadi led backend engineering at a Series B fintech, where he built the data infrastructure that processed $3B in transactions. Prior to that, 3 years building distributed systems at a scale-up infrastructure company. He thinks about data models the way architects think about load-bearing walls — as decisions that will outlast everything built on top of them.',
     approachQuote:
       'I want to understand the business completely before I touch a database schema. The technical decisions we make in week one will constrain everything that follows.',
     yearsOfExperience: 7,
     since: '2022',
-    location: 'London, UK',
-    languages: ['English', 'Mandarin'],
+    location: 'Beirut, Lebanon',
+    languages: ['English', 'Arabic'],
     order: 1,
     specializations: ['System architecture', 'Event-driven systems', 'Data infrastructure'],
     skills: ['System Architecture', 'Node.js', 'NestJS', '.NET Core', 'PostgreSQL', 'Redis', 'Event-driven systems', 'AWS', 'Python'],
     technologies: refs([T('nodejs'), T('nestjs'), T('dotnet'), T('postgresql'), T('redis'), T('aws'), T('python')]),
     featuredProjects: refs(['project-meridian', 'project-forta', 'project-orbital']),
-    github: 'https://github.com/mchen-dev',
-    linkedin: 'https://www.linkedin.com/in/marcuschen',
+    github: 'https://github.com/fadizakharia2',
   },
   {
-    _id: 'developer-soren-larsen',
+    _id: 'developer-nad-ghantous',
     _type: 'developer',
-    name: 'Soren Larsen',
-    slug: { current: 'soren-larsen' },
+    name: 'Nad Ghantous',
+    slug: { current: 'nad-ghantous' },
     title: 'Frontend & Product Engineering',
     shortTitle: 'Frontend & Product',
-    portrait: image(unsplash(IMG.soren, 1200, 1600), 'Portrait of Soren Larsen'),
+    portrait: image(unsplash(IMG.soren, 1200, 1600), 'Portrait of Nad Ghantous'),
     shortBio:
-      'Soren has spent 6 years building interfaces that teams are proud to use. He brings product instincts to every engineering decision — and writes frontend code that other developers want to work inside.',
+      'Nad has spent 6 years building interfaces that teams are proud to use. He brings product instincts to every engineering decision — and writes frontend code that other developers want to work inside.',
     longBio:
-      'Soren spent 4 years building design systems and complex interfaces at a product design consultancy, then 2 years as frontend lead at an enterprise SaaS company. His background straddles engineering and design — he can read a Figma file and argue about a component API in the same conversation. He is the reason the interfaces we ship feel considered, not just functional.',
+      'Nad spent 4 years building design systems and complex interfaces at a product design consultancy, then 2 years as frontend lead at an enterprise SaaS company. His background straddles engineering and design — he can read a Figma file and argue about a component API in the same conversation. He is the reason the interfaces we ship feel considered, not just functional.',
     approachQuote:
       'I am always thinking about the person on the other end of the interface. Every interaction is a conversation between the system and a human. That conversation should be clear.',
     yearsOfExperience: 6,
     since: '2022',
-    location: 'London, UK',
-    languages: ['English', 'Danish'],
+    location: 'Beirut, Lebanon',
+    languages: ['English', 'Arabic'],
     order: 2,
     specializations: ['Design systems', 'Interaction engineering', 'Mobile'],
     skills: ['React', 'Next.js', 'Astro', 'TypeScript', 'React Native', 'Design Systems', 'Animation', 'Performance'],
     technologies: refs([T('react'), T('nextjs'), T('astro'), T('typescript'), T('react-native'), T('design-systems')]),
     featuredProjects: refs(['project-vessel', 'project-pragma', 'project-orbital']),
-    github: 'https://github.com/slarsen',
-    linkedin: 'https://www.linkedin.com/in/sorenlarsen',
   },
 ];
 
@@ -397,7 +394,7 @@ const testimonials: SeedDocument[] = [
     _id: 'testimonial-elena-voss',
     _type: 'testimonial',
     quote:
-      'Working with Marcus and Soren felt nothing like hiring a freelance team. They had the product instincts of a senior internal team and the technical depth to back it up. They shipped more in 8 weeks than our previous agency did in six months.',
+      'Working with Fadi and Nad felt nothing like hiring a freelance team. They had the product instincts of a senior internal team and the technical depth to back it up. They shipped more in 8 weeks than our previous agency did in six months.',
     person: 'Elena Voss',
     role: 'Co-founder & CEO',
     company: 'Meridian Capital',
@@ -607,7 +604,7 @@ const projects: SeedDocument[] = [
     results: 'Reports that took 3 days now take hours. Real-time risk replaced overnight batches. Zero critical incidents six months post-launch.',
     metrics: [metric('340%', 'Faster reporting'), metric('$2.4B', 'AUM managed'), metric('<100ms', 'Query latency'), metric('0', 'Data incidents')],
     testimonials: refs(['testimonial-elena-voss']),
-    developers: refs(['developer-marcus-chen', 'developer-soren-larsen']),
+    developers: refs(['developer-fadi-zakharia', 'developer-nad-ghantous']),
     caseStudy: meridianCaseStudy,
     nextProject: ref('project-vessel'),
   },
@@ -638,7 +635,7 @@ const projects: SeedDocument[] = [
     results: 'Checkout conversion up 28%. Merchandising changes ship daily without engineering.',
     metrics: [metric('+28%', 'Checkout conversion'), metric('180ms', 'TTFB'), metric('4×', 'Merchandising velocity')],
     testimonials: refs(['testimonial-james-okafor']),
-    developers: refs(['developer-soren-larsen', 'developer-marcus-chen']),
+    developers: refs(['developer-nad-ghantous', 'developer-fadi-zakharia']),
     caseStudy: vesselCaseStudy,
   },
   {
@@ -669,7 +666,7 @@ const projects: SeedDocument[] = [
     results: 'Launched to a 4.8★ Product Hunt reception; planning time per sprint dropped from a day to under an hour.',
     metrics: [metric('4.8★', 'Product Hunt rating'), metric('-85%', 'Planning time'), metric('12k', 'Tickets generated')],
     testimonials: refs(['testimonial-sasha-mendez']),
-    developers: refs(['developer-marcus-chen', 'developer-soren-larsen']),
+    developers: refs(['developer-fadi-zakharia', 'developer-nad-ghantous']),
     gallery: [image(unsplash(IMG.orbital, 1400, 900), 'Task decomposition view'), image(unsplash(IMG.pragma, 1400, 900), 'Sprint timeline')],
   },
   {
@@ -696,7 +693,7 @@ const projects: SeedDocument[] = [
     solution: 'A sync engine over the Figma API that diffs tokens and variants against the published component package.',
     results: 'Sixty teams onboarded in the first quarter; drift alerts replaced quarterly audits.',
     metrics: [metric('60+', 'Teams onboarded'), metric('0', 'Manual audits'), metric('3 min', 'Sync latency')],
-    developers: refs(['developer-soren-larsen']),
+    developers: refs(['developer-nad-ghantous']),
   },
   {
     _id: 'project-forta',
@@ -722,7 +719,7 @@ const projects: SeedDocument[] = [
     solution: 'Partitioned ingestion with Redis streams, backpressure-aware consumers and regional failover on AWS.',
     results: '99.97% measured uptime over the following year with a 40% lower infrastructure bill.',
     metrics: [metric('99.97%', 'Uptime'), metric('-40%', 'Infra cost'), metric('50k/s', 'Peak events')],
-    developers: refs(['developer-marcus-chen']),
+    developers: refs(['developer-fadi-zakharia']),
   },
   {
     _id: 'project-cadence',
@@ -748,7 +745,7 @@ const projects: SeedDocument[] = [
     solution: 'Offline-first sync with conflict resolution, a .NET API with immutable audit logging, and accessibility-first UI.',
     results: 'Twelve thousand monthly active patients at launch and a successful pilot extension.',
     metrics: [metric('12k', 'MAU at launch'), metric('4.7★', 'App Store rating'), metric('100%', 'Audit coverage')],
-    developers: refs(['developer-soren-larsen', 'developer-marcus-chen']),
+    developers: refs(['developer-nad-ghantous', 'developer-fadi-zakharia']),
   },
 ];
 
@@ -763,7 +760,7 @@ const articles: SeedDocument[] = [
     excerpt:
       'Microservices solve problems you do not have yet — and create problems you do not expect. A case for starting with a well-structured monolith.',
     coverImage: image(unsplash(IMG.pragma, 2000, 900), 'Abstract architecture diagram'),
-    author: ref('developer-marcus-chen'),
+    author: ref('developer-fadi-zakharia'),
     category: ref('category-architecture'),
     publishedAt: '2024-11-14T09:00:00Z',
     readingTime: 8,
@@ -819,7 +816,7 @@ const articles: SeedDocument[] = [
     slug: { current: 'practical-llm-integration-patterns' },
     excerpt: 'Beyond the prototype. The architectural patterns, failure modes, and trade-offs of building LLM-powered features at scale.',
     coverImage: image(unsplash(IMG.forta, 2000, 900), 'Circuit board close-up'),
-    author: ref('developer-marcus-chen'),
+    author: ref('developer-fadi-zakharia'),
     category: ref('category-ai'),
     publishedAt: '2024-10-28T09:00:00Z',
     readingTime: 12,
@@ -848,7 +845,7 @@ const articles: SeedDocument[] = [
     slug: { current: 'the-technical-spec-review-that-prevents-expensive-rework' },
     excerpt: 'A structured process for finding product specification problems before they become engineering problems.',
     coverImage: image(unsplash(IMG.vessel, 2000, 900), 'Notebook and laptop on a desk'),
-    author: ref('developer-soren-larsen'),
+    author: ref('developer-nad-ghantous'),
     category: ref('category-product'),
     publishedAt: '2024-09-15T09:00:00Z',
     readingTime: 6,
@@ -871,7 +868,7 @@ const articles: SeedDocument[] = [
     slug: { current: 'component-api-design' },
     excerpt: 'The choices you make when designing component interfaces will constrain your team for years. Here is how to make them carefully.',
     coverImage: image(unsplash(IMG.orbital, 2000, 900), 'Code on a screen'),
-    author: ref('developer-soren-larsen'),
+    author: ref('developer-nad-ghantous'),
     category: ref('category-frontend'),
     publishedAt: '2024-08-30T09:00:00Z',
     readingTime: 10,
@@ -897,7 +894,7 @@ const articles: SeedDocument[] = [
     slug: { current: 'postgresql-query-optimization-patterns' },
     excerpt: 'Not theoretical. The specific index strategies, query patterns, and diagnostic approaches we apply to real production databases.',
     coverImage: image(unsplash(IMG.meridian, 2000, 900), 'Analytics charts on a monitor'),
-    author: ref('developer-marcus-chen'),
+    author: ref('developer-fadi-zakharia'),
     category: ref('category-performance'),
     publishedAt: '2024-08-12T09:00:00Z',
     readingTime: 14,
@@ -975,14 +972,13 @@ const siteSettings: SeedDocument = {
   siteUrl: 'https://madebyfn.com',
   establishedYear: 2022,
   primaryEmail: 'hello@madebyfn.com',
-  location: 'London, UK',
-  timezone: 'Europe/London',
-  timezoneLabel: 'GMT',
+  location: 'Beirut, Lebanon',
+  timezone: 'Asia/Beirut',
   availability: {
     status: 'available',
     label: 'Available',
-    detail: 'Taking on new projects\nfrom Q1 2025',
-    menuLabel: 'Available for Q1 2025',
+    detail: 'Taking on new projects\nfrom {quarter}',
+    menuLabel: 'Available for {quarter}',
     responseTime: 'Within 48 hours, usually sooner',
   },
   socialLinks: [
@@ -1042,7 +1038,7 @@ const homepage: SeedDocument = {
       'Two engineers. One focused team. We take complex digital products from concept to production — without the agency overhead, the account manager, or the handoff delays.',
     primaryCta: internalLink('Start a Project', 'startProjectPage'),
     secondaryCta: internalLink('View Work', 'workPage'),
-    availabilityText: 'Available for new engagements · Q1 2025',
+    availabilityText: 'Available for new engagements · {quarter}',
     backgroundVideo: {
       enabled: true,
       // Placeholder loop (Pexels licence). Replace with the studio's own clip in the Studio.
@@ -1055,12 +1051,12 @@ const homepage: SeedDocument = {
       metricCard: { label: 'Meridian / Q3 2024', value: '340%', caption: 'faster reporting ↑', bars: [65, 82, 78, 90, 88, 95] },
       stackLabel: 'Stack',
       stackTechnologies: refs([T('react'), T('nodejs'), T('nestjs'), T('dotnet'), T('postgresql'), T('ai-llm')]),
-      watermark: 'fn / Studio / 2025',
+      watermark: 'fn / Studio / {year}',
     },
   },
   stats: {
     items: [metric('12+', 'Years combined'), metric('40+', 'Projects shipped'), metric('8', 'Industries served'), metric('2', 'Direct engineers'), metric('100%', 'Senior throughout')],
-    note: 'London, UK · EST. 2022',
+    note: 'Beirut, Lebanon · EST. 2022',
   },
   selectedWork: {
     eyebrow: 'Selected Work',
@@ -1103,7 +1099,7 @@ const homepage: SeedDocument = {
     agencyLabel: 'Traditional Agency',
     studioLabel: 'madebyfn',
     rows: [
-      { _type: 'comparisonRow', _key: key(), aspect: 'Communication', agency: 'Account manager → PM → Lead dev → Your team', studio: 'You → Marcus & Soren' },
+      { _type: 'comparisonRow', _key: key(), aspect: 'Communication', agency: 'Account manager → PM → Lead dev → Your team', studio: 'You → Fadi & Nad' },
       { _type: 'comparisonRow', _key: key(), aspect: 'Ownership', agency: 'Distributed across roles, accounts, and timezones', studio: 'Full. Both engineers own the outcome.' },
       { _type: 'comparisonRow', _key: key(), aspect: 'Decision speed', agency: 'Approval chains, scope calls, change requests', studio: 'Same conversation, immediate resolution' },
       { _type: 'comparisonRow', _key: key(), aspect: 'Senior involvement', agency: 'Seniors pitch. Juniors build. You find out late.', studio: 'Senior engineering throughout. Always.' },
@@ -1180,7 +1176,7 @@ const studioPage: SeedDocument = {
   eyebrow: 'The Studio',
   title: 'Studio',
   intro:
-    'madebyfn is two engineers who chose to work together because they complement each other perfectly. Marcus brings systems thinking and backend depth. Soren brings product instinct and frontend craft. Together they form a complete product engineering team — without the overhead.',
+    'madebyfn is two engineers who chose to work together because they complement each other perfectly. Fadi brings systems thinking and backend depth. Nad brings product instinct and frontend craft. Together they form a complete product engineering team — without the overhead.',
   philosophy: {
     eyebrow: 'Philosophy',
     statement:
@@ -1219,7 +1215,7 @@ const startProjectPage: SeedDocument = {
   title: 'Tell us about your project.',
   intro: 'We take a small number of projects each quarter. Tell us about yours and we will respond with honest thoughts — including whether we are the right fit.',
   infoItems: [
-    { _type: 'infoItem', _key: key(), icon: 'filled', label: 'Availability', value: 'Taking projects from Q1 2025' },
+    { _type: 'infoItem', _key: key(), icon: 'filled', label: 'Availability', value: 'Taking projects from {quarter}' },
     { _type: 'infoItem', _key: key(), icon: 'half', label: 'Response time', value: 'Within 48 hours, usually sooner' },
     { _type: 'infoItem', _key: key(), icon: 'outline', label: 'Engagements', value: 'Project-based and ongoing retainer' },
   ],

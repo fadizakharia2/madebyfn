@@ -1,5 +1,6 @@
 import { createClient, type SanityClient } from '@sanity/client';
 import { hasSanityProject, sanityEnv } from '../env';
+import { resolveTokens } from '../tokens';
 
 /**
  * Content access for the whole site.
@@ -59,10 +60,11 @@ async function evaluateLocally<T>(query: string, params: Params): Promise<T> {
 
 /** Run a GROQ query and return its typed result. */
 export async function fetchQuery<T>(query: string, params: Params = {}): Promise<T> {
-  if (hasSanityProject) {
-    return getClient().fetch<T>(query, params);
-  }
-  return evaluateLocally<T>(query, params);
+  const result = hasSanityProject
+    ? await getClient().fetch<T>(query, params)
+    : await evaluateLocally<T>(query, params);
+  // {quarter} / {year} tokens typed in the Studio become real dates here.
+  return resolveTokens(result);
 }
 
 export { hasSanityProject };

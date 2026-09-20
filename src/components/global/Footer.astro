@@ -94,8 +94,8 @@ const legalLinks = (navigation.legalItems ?? []).map((item) => ({ label: item.la
           <div>
             <p class="site-footer__location">{settings.location}</p>
             <p class="site-footer__time">
-              <time data-local-time data-timezone={settings.timezone || 'Europe/London'}>--:--</time>
-              {settings.timezoneLabel && ` ${settings.timezoneLabel}`}
+              <time data-local-time data-timezone={settings.timezone || 'Asia/Beirut'}>--:--</time>{' '}
+              <span data-local-offset data-fixed={settings.timezoneLabel || undefined}>{settings.timezoneLabel}</span>
             </p>
           </div>
         )}
@@ -332,10 +332,19 @@ const legalLinks = (navigation.legalItems ?? []).map((item) => ({ label: item.la
     if (nodes.length === 0) return;
     const update = () => {
       nodes.forEach((node) => {
-        const tz = node.dataset.timezone || 'Europe/London';
+        const tz = node.dataset.timezone || 'Asia/Beirut';
         try {
           node.textContent = new Date().toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
           node.setAttribute('datetime', new Date().toISOString());
+          // Offset label ("GMT+3") follows daylight saving automatically unless
+          // an editor typed a fixed label in Site settings.
+          const label = node.parentElement?.querySelector<HTMLElement>('[data-local-offset]');
+          if (label && !label.dataset.fixed) {
+            const part = new Intl.DateTimeFormat('en-GB', { timeZone: tz, timeZoneName: 'shortOffset' })
+              .formatToParts(new Date())
+              .find((p) => p.type === 'timeZoneName');
+            label.textContent = part?.value ?? '';
+          }
         } catch {
           node.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         }

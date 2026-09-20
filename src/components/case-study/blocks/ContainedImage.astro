@@ -23,6 +23,9 @@ const { block } = Astro.props;
   }
   .contained__frame :global(img) {
     height: auto;
+    max-height: 85vh;
+    object-fit: contain;
+    background: var(--color-bg-2);
   }
   .contained__caption {
     margin-top: var(--space-3);

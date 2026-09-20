@@ -27,7 +27,7 @@ const { section, projects } = Astro.props;
       return split ? (
         <a href={routes.project(p.slug)} class="work__row work__row--split" data-cursor="View" aria-label={`${p.name} case study`}>
           <div class="work__split-media">
-            <SanityPicture image={p.heroImage} aspect={16 / 11} widths={[640, 960, 1280, 1600]} sizes="(max-width: 899px) 100vw, 55vw" />
+            <SanityPicture image={p.heroImage} widths={[640, 960, 1280, 1600]} sizes="(max-width: 899px) 100vw, 55vw" />
             <div class="work__split-fade" aria-hidden="true"></div>
           </div>
           <div class="work__split-body">
@@ -46,7 +46,7 @@ const { section, projects } = Astro.props;
         </a>
       ) : (
         <a href={routes.project(p.slug)} class:list={['work__row work__row--full', even ? 'work__row--left' : 'work__row--right']} data-cursor="View" aria-label={`${p.name} case study`}>
-          <SanityPicture image={p.heroImage} aspect={1440 / 520} widths={[768, 1024, 1440, 1920]} sizes="100vw" priority={i === 0} />
+          <SanityPicture image={p.heroImage} widths={[768, 1024, 1440, 1920]} sizes="100vw" priority={i === 0} />
           <div class="work__shade" aria-hidden="true"></div>
           <div class="work__overlay">
             <span class="work__meta">{p.industryLabel || p.industry?.name}{p.year ? ` · ${p.year}` : ''}</span>
@@ -76,6 +76,8 @@ const { section, projects } = Astro.props;
     color: inherit;
   }
   .work__row :global(img) {
+    max-height: 90vh;
+    object-fit: contain;
     transition: transform var(--dur-image) var(--ease-out-expo);
   }
   .work__row:hover :global(img),
@@ -84,13 +86,10 @@ const { section, projects } = Astro.props;
   }
 
   /* Full-bleed rows */
+  /* Full-bleed rows take the image's own height, so nothing is cropped. */
   .work__row--full {
-    height: 520px;
-  }
-  .work__row--full :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    min-height: 320px;
+    background: var(--color-bg-2);
   }
   .work__shade {
     position: absolute;
@@ -176,12 +175,9 @@ const { section, projects } = Astro.props;
   .work__split-media {
     position: relative;
     overflow: hidden;
-    height: 480px;
-  }
-  .work__split-media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg);
   }
   .work__split-fade {
     position: absolute;
@@ -240,17 +236,25 @@ const { section, projects } = Astro.props;
 
   @media (max-width: 1023px) {
     .work__row--split { grid-template-columns: 1fr 1fr; }
-    .work__split-media { height: 420px; }
     .work__split-body { padding: var(--space-10) var(--gutter); }
   }
   @media (max-width: 767px) {
-    .work__row--full { height: 420px; }
-    .work__overlay { max-width: calc(100% - 2 * var(--gutter)); }
-    .work__row--right .work__overlay { right: auto; left: var(--gutter); text-align: left; align-items: flex-start; }
+    /* A phone-width image is too short to carry overlaid text: stack it. */
+    .work__row--full { min-height: 0; }
+    .work__shade { display: none; }
+    .work__overlay,
+    .work__row--right .work__overlay {
+      position: static;
+      max-width: none;
+      padding: var(--space-6) var(--gutter) var(--space-8);
+      text-align: left;
+      align-items: flex-start;
+      background: var(--color-bg-2);
+    }
+    .work__ghost, .work__client { top: var(--space-5); }
     .work__row--right .work__ghost { left: auto; right: var(--gutter); }
     .work__row--right .work__client { right: auto; left: var(--gutter); }
     .work__row--split { grid-template-columns: 1fr; }
-    .work__split-media { height: 260px; }
     .work__split-fade { background: linear-gradient(to bottom, transparent 60%, var(--color-bg-2)); }
     .work__split-body { border-left: 0; padding: var(--space-8) var(--gutter) var(--space-10); }
   }

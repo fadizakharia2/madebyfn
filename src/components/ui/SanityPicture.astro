@@ -4,11 +4,16 @@ import type { SanityImage } from '@/lib/sanity/types';
 
 /**
  * Responsive <img> for Sanity images (or seed-marker images before import).
- * Renders a neutral placeholder when no source is available so layouts hold.
+ *
+ * Images are shown in full at their natural proportions. `aspect` forces a
+ * crop and is reserved for places that need one (circular avatars).
+ * `fit="contain"` fits the whole image inside a box sized by its parent,
+ * for grids where cards must share one media height.
  */
 interface Props {
   image: SanityImage | null | undefined;
   aspect?: number;
+  fit?: 'natural' | 'contain' | 'cover';
   widths?: number[];
   sizes?: string;
   priority?: boolean;
@@ -20,6 +25,7 @@ interface Props {
 const {
   image,
   aspect,
+  fit = aspect ? 'cover' : 'natural',
   widths,
   sizes = '100vw',
   priority = false,
@@ -30,7 +36,7 @@ const {
 
 const resolved = hasImage(image) ? responsiveImage(image, { widths, aspect }) : null;
 const style = [
-  resolved ? `object-position:${resolved.objectPosition}` : '',
+  resolved && fit === 'cover' ? `object-position:${resolved.objectPosition}` : '',
   filter ? `filter:${filter}` : '',
 ]
   .filter(Boolean)
@@ -49,7 +55,7 @@ const style = [
       loading={priority ? 'eager' : 'lazy'}
       fetchpriority={priority ? 'high' : undefined}
       decoding={priority ? 'sync' : 'async'}
-      class:list={['sanity-picture', className]}
+      class:list={['sanity-picture', `sanity-picture--${fit}`, className]}
       style={style || undefined}
     />
   ) : (
@@ -59,12 +65,26 @@ const style = [
   )
 }
 
-<style>
+<style is:global>
   .sanity-picture {
+    display: block;
     width: 100%;
+    background: var(--color-surface);
+  }
+  /* Full image, natural proportions. */
+  img.sanity-picture--natural {
+    height: auto;
+  }
+  /* Whole image fitted inside a parent-sized box. */
+  img.sanity-picture--contain {
+    height: 100%;
+    object-fit: contain;
+    background: var(--color-bg-2);
+  }
+  /* Deliberate crop (avatars). */
+  img.sanity-picture--cover {
     height: 100%;
     object-fit: cover;
-    background: var(--color-surface);
   }
   .sanity-picture--missing {
     display: grid;

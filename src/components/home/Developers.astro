@@ -20,7 +20,7 @@ const { section, developers } = Astro.props;
     {developers.map((dev, i) => (
       <article class="dev" data-reveal data-reveal-delay={String(i)}>
         <div class="dev__portrait">
-          <SanityPicture image={dev.portrait} aspect={3 / 2} widths={[600, 900, 1200]} sizes="(max-width: 767px) 100vw, 50vw" filter="grayscale(30%) brightness(0.7)" />
+          <SanityPicture image={dev.portrait} widths={[600, 900, 1200]} sizes="(max-width: 767px) 100vw, 50vw" filter="grayscale(30%) brightness(0.7)" />
           <div class="dev__fade" aria-hidden="true"></div>
           <span class="dev__num" aria-hidden="true">{pad2(i + 1)}</span>
         </div>
@@ -48,23 +48,30 @@ const { section, developers } = Astro.props;
 </section>
 
 <style>
+  /* Two rows shared across both columns (subgrid) so portraits of different
+     proportions keep the text beneath them aligned. */
   .devs__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
     border-top: 1px solid var(--border);
+  }
+  .dev {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
   }
   .dev:first-child {
     border-right: 1px solid var(--border);
   }
   .dev__portrait {
     position: relative;
-    height: 400px;
     overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    background: var(--color-bg-2);
   }
   .dev__portrait :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     transition: filter var(--dur-image) var(--ease-out-expo);
   }
   .dev:hover .dev__portrait :global(img) {
@@ -135,9 +142,9 @@ const { section, developers } = Astro.props;
     color: var(--color-accent);
   }
   @media (max-width: 767px) {
-    .devs__grid { grid-template-columns: 1fr; }
+    .devs__grid { grid-template-columns: 1fr; grid-template-rows: none; }
+    .dev { display: block; grid-row: auto; }
     .dev:first-child { border-right: 0; border-bottom: 1px solid var(--border); }
-    .dev__portrait { height: 320px; }
     .dev__body { padding: var(--space-8) var(--gutter) var(--space-10); }
   }
 </style>
