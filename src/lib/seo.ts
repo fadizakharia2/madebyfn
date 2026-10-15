@@ -81,14 +81,12 @@ type JsonLd = Record<string, unknown>;
 export function organizationJsonLd(settings: SiteSettings): JsonLd {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    // madebyfn is a shared brand for two freelance developers, not a
+    // registered company, so it is described as a Brand with no legal name.
+    '@type': 'Brand',
     '@id': `${SITE_URL}/#organization`,
     name: settings.studioName,
-    legalName: settings.legalName ?? undefined,
     url: SITE_URL,
-    email: settings.primaryEmail,
-    foundingDate: settings.establishedYear ? String(settings.establishedYear) : undefined,
-    address: settings.location ? { '@type': 'PostalAddress', addressLocality: settings.location } : undefined,
     sameAs: settings.socialLinks?.map((l) => l.url) ?? [],
     logo: settings.logo ? ogImageUrl(settings.logo) : undefined,
   };
