@@ -64,7 +64,17 @@ if (!projectId || !token) {
 
 const client = createClient({ projectId, dataset, token, apiVersion: '2025-06-01', useCdn: false });
 
+// Real studio content that also lives in the seed. It is loaded into the live
+// dataset, so it is never removed, even with --all.
+const REAL_IDS = new Set([
+  'developer-fadi-zakharia',
+  'project-arc-recovery', 'project-thaleon', 'project-yg-garcia', 'project-inservice',
+  'client-arc-recovery', 'client-thaleon', 'client-yg-garcia', 'client-inservice',
+  'industry-publishing', 'industry-marketplace',
+]);
+
 const targetIds = seedDocuments
+  .filter((d) => !REAL_IDS.has(d._id))
   .filter((d) => all || (!SINGLETON_TYPES.has(d._type) && !VOCABULARY_TYPES.has(d._type)))
   .map((d) => d._id);
 

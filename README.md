@@ -168,6 +168,8 @@ or seed through the API with an Editor token in `.env`:
 npm run sanity:seed
 ```
 
+Against a dataset that already holds real content, never run the full seed: it replaces every seed document and wipes Studio edits. Load only the documents you need, for example `npm run sanity:seed -- --only=project-arc-recovery,client-arc-recovery`. Writes made through the API may not trigger the Sanity webhook, so redeploy in Vercel afterwards if the site doesn't update.
+
 ### Removing the placeholder content
 
 Sanity will not delete a document while anything still references it, and the seed is heavily cross-linked, so deleting it by hand in the Studio fails. Use the script instead:
@@ -178,7 +180,7 @@ npm run sanity:unseed            # delete seed projects, developers, clients, te
 npm run sanity:unseed -- --all   # also delete seed industries, technologies, services, categories, legal pages and page documents
 ```
 
-Only documents with the seed's own ids are removed; documents you created stay. Links to deleted documents are cleared from everything else (including your documents and drafts) in the same transaction, and images left unreferenced are removed.
+Only documents with the seed's own ids are removed; documents you created stay, and so do the real projects, clients and Fadi's profile listed in `REAL_IDS` in the script. Links to deleted documents are cleared from everything else (including your documents and drafts) in the same transaction, and images left unreferenced are removed.
 
 ### 3. Open the Studio
 
