@@ -71,6 +71,7 @@ const REAL_IDS = new Set([
   'project-arc-recovery', 'project-thaleon', 'project-yg-garcia', 'project-inservice',
   'client-arc-recovery', 'client-thaleon', 'client-yg-garcia', 'client-inservice',
   'industry-publishing', 'industry-marketplace',
+  'project-qrec', 'client-qrec', 'industry-sports',
 ]);
 
 const targetIds = seedDocuments

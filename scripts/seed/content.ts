@@ -112,6 +112,7 @@ const industries: SeedDocument[] = [
   { _id: 'industry-healthcare', _type: 'industry', name: 'Healthcare', slug: { current: 'healthcare' }, description: 'Patient-facing and clinical software.', order: 6 },
   { _id: 'industry-publishing', _type: 'industry', name: 'Publishing', slug: { current: 'publishing' }, description: 'Authors, books and media.', order: 7 },
   { _id: 'industry-marketplace', _type: 'industry', name: 'Marketplace', slug: { current: 'marketplace' }, description: 'Two-sided platforms connecting customers and providers.', order: 8 },
+  { _id: 'industry-sports', _type: 'industry', name: 'Sports & Equestrian', slug: { current: 'sports' }, description: 'Clubs, racing and sporting bodies.', order: 9 },
 ];
 
 const articleCategories: SeedDocument[] = [
@@ -191,6 +192,7 @@ const clients: SeedDocument[] = [
   { _id: 'client-thaleon', _type: 'client', name: 'THALÉON', website: 'https://thaleonnutrition.com', industry: ref('industry-commerce') },
   { _id: 'client-yg-garcia', _type: 'client', name: 'Y.G. García', industry: ref('industry-publishing') },
   { _id: 'client-inservice', _type: 'client', name: 'InService', industry: ref('industry-marketplace') },
+  { _id: 'client-qrec', _type: 'client', name: 'Qatar Racing and Equestrian Club', website: 'https://qrec.gov.qa', industry: ref('industry-sports') },
 ];
 
 /* ── Developers ─────────────────────────────────────────────────────── */
@@ -731,6 +733,40 @@ const projects: SeedDocument[] = [
     results: 'A complete two-sided marketplace, from sign-up to chat, built by one engineer.',
     metrics: [metric('2', 'User roles'), metric('2', 'Apps: mobile + API')],
     developers: refs(['developer-fadi-zakharia']),
+  },
+  {
+    _id: 'project-qrec',
+    _type: 'project',
+    name: 'QREC',
+    slug: { current: 'qrec' },
+    client: ref('client-qrec'),
+    statement: 'Qatar’s racing and equestrian season, online.',
+    shortDescription: 'Bilingual public website for the Qatar Racing and Equestrian Club, built as part of the team at Mannai Corporation.',
+    fullDescription:
+      'The Qatar Racing and Equestrian Club’s website in Arabic and English: the race calendar with full race cards, the Arabian horse show section, the online studbook, auctions and e-services for owners and trainers.',
+    year: '2024',
+    industry: ref('industry-sports'),
+    industryLabel: 'Horse Racing & Equestrian',
+    services: refs(['service-product-engineering', 'service-frontend-engineering']),
+    serviceTags: ['Government Website', 'Bilingual', 'Frontend'],
+    headlineResult: 'Live at qrec.gov.qa',
+    role: 'Engineering, as part of the Mannai Corporation team',
+    featured: false,
+    order: 5,
+    heroImage: image(shot('qrec/home.jpg'), 'QREC homepage with the race meeting banner and race calendar'),
+    mobileHeroImage: image(shot('qrec/mobile.jpg'), 'QREC homepage on a phone'),
+    gallery: [
+      image(shot('qrec/race-calendar.jpg'), 'Race card for an Al Rayyan race meeting'),
+      image(shot('qrec/horse-show.jpg'), 'Arabian Horse Show section'),
+      image(shot('qrec/stud-book.jpg'), 'Online studbook search with bilingual columns'),
+    ],
+    challenge:
+      'The club runs a full racing season, Arabian horse shows, auctions and a horse registry, and owners, trainers and the public need all of it in one place, in Arabic and English.',
+    solution:
+      'One bilingual site that brings together the race calendar and race cards, the horse show programme, the online studbook, media, auctions and e-services, with a login for owners and a separate trainer portal.',
+    results: 'Live at qrec.gov.qa.',
+    developers: refs(['developer-fadi-zakharia']),
+    externalLink: 'https://qrec.gov.qa',
   },
   {
     _id: 'project-meridian',
