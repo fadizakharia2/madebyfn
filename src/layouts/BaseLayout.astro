@@ -30,7 +30,11 @@ const structuredData = [organizationJsonLd(settings), websiteJsonLd(settings), .
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <!-- ClientRouter swaps the <html> attributes on navigation, so re-add the class after each swap. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      document.addEventListener('astro:after-swap', () => document.documentElement.classList.add('js'));
+    </script>
     <Seo meta={meta} jsonLd={structuredData} favicon={settings.favicon} />
     <Font cssVariable="--font-serif" preload />
     <Font cssVariable="--font-sans" preload />
