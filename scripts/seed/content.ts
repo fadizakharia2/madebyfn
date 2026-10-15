@@ -741,7 +741,7 @@ const projects: SeedDocument[] = [
     slug: { current: 'qrec' },
     client: ref('client-qrec'),
     statement: 'Qatar’s racing and equestrian season, online.',
-    shortDescription: 'Bilingual public website for the Qatar Racing and Equestrian Club, where Fadi led the backend team at Mannai Corporation.',
+    shortDescription: 'Bilingual public website for the Qatar Racing and Equestrian Club, where Fadi was Senior Team Lead Backend Engineer at Mannai Corporation.',
     fullDescription:
       'The Qatar Racing and Equestrian Club’s website in Arabic and English: the race calendar with full race cards, the Arabian horse show section, the online studbook, auctions and e-services for owners and trainers.',
     year: '2024',
@@ -750,7 +750,7 @@ const projects: SeedDocument[] = [
     services: refs(['service-backend-architecture', 'service-product-engineering']),
     serviceTags: ['Government Website', 'Backend', 'Team Lead'],
     headlineResult: 'Live at qrec.gov.qa',
-    role: 'Backend team lead at Mannai Corporation',
+    role: 'Senior Team Lead Backend Engineer at Mannai Corporation',
     featured: false,
     order: 5,
     heroImage: image(shot('qrec/home.jpg'), 'QREC homepage with the race meeting banner and race calendar'),
