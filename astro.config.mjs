@@ -13,7 +13,7 @@ const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
 const projectId = env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = env.PUBLIC_SANITY_DATASET || 'production';
 const apiVersion = env.PUBLIC_SANITY_API_VERSION || '2025-06-01';
-const site = env.PUBLIC_SITE_URL || 'https://madebyfn.com';
+const site = env.PUBLIC_SITE_URL || 'https://www.madebyfn.dev';
 
 /**
  * The Sanity Studio is embedded at /admin. It can only be mounted when a

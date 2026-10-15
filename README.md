@@ -117,7 +117,7 @@ Copy `.env.example` to `.env`.
 | `SANITY_API_TOKEN` | secret | Editor token. Only needed for `npm run sanity:seed`. |
 | `RESEND_API_KEY` | secret | Resend API key. |
 | `RESEND_SEGMENT_ID` | secret | Segment (formerly audience) that newsletter contacts join. `RESEND_AUDIENCE_ID` is accepted as an alias. |
-| `RESEND_FROM_EMAIL` | secret | Verified sender, e.g. `madebyfn <hello@madebyfn.com>`. Defaults to `onboarding@resend.dev` for testing. |
+| `RESEND_FROM_EMAIL` | secret | Verified sender, e.g. `madebyfn <hello@madebyfn.dev>`. Defaults to `onboarding@resend.dev` for testing. |
 | `CONTACT_EMAIL` | secret | Inbox that receives project inquiries. |
 | `PUBLIC_SITE_URL` | public | Canonical origin, used for canonicals, OpenGraph, sitemap and robots. |
 | `ALLOW_SEED_FALLBACK` | build | Set `true` to allow a production build without Sanity (local QA only). |

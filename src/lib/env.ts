@@ -8,7 +8,7 @@
 
 const publicEnv = import.meta.env;
 
-export const SITE_URL = (publicEnv.PUBLIC_SITE_URL || 'https://madebyfn.com').replace(/\/$/, '');
+export const SITE_URL = (publicEnv.PUBLIC_SITE_URL || 'https://www.madebyfn.dev').replace(/\/$/, '');
 
 export const sanityEnv = {
   projectId: publicEnv.PUBLIC_SANITY_PROJECT_ID ?? '',

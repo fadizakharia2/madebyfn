@@ -1133,7 +1133,7 @@ const legalPages: SeedDocument[] = [
       block('Analytics', 'h2'),
       block('We use privacy-respecting, cookieless analytics to understand aggregate traffic. No personal data is shared with advertisers.'),
       block('Your rights', 'h2'),
-      block('Email hello@madebyfn.com at any time to see, correct or delete the data we hold about you.'),
+      block('Email hello@madebyfn.dev at any time to see, correct or delete the data we hold about you.'),
     ],
   },
   {
@@ -1161,9 +1161,9 @@ const siteSettings: SeedDocument = {
   siteName: 'madebyfn',
   studioName: 'madebyfn',
   legalName: 'Fadi Zakharia & Nad Ghantous',
-  siteUrl: 'https://madebyfn.com',
+  siteUrl: 'https://www.madebyfn.dev',
   establishedYear: 2026,
-  primaryEmail: 'hello@madebyfn.com',
+  primaryEmail: 'hello@madebyfn.dev',
   location: 'Beirut, Lebanon',
   timezone: 'Asia/Beirut',
   availability: {
