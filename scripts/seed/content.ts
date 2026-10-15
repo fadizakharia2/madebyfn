@@ -1163,7 +1163,7 @@ const siteSettings: SeedDocument = {
   studioDescriptor: 'Studio',
   legalName: 'madebyfn Ltd.',
   siteUrl: 'https://madebyfn.com',
-  establishedYear: 2022,
+  establishedYear: 2026,
   primaryEmail: 'hello@madebyfn.com',
   location: 'Beirut, Lebanon',
   timezone: 'Asia/Beirut',
@@ -1249,7 +1249,7 @@ const homepage: SeedDocument = {
   },
   stats: {
     items: [metric('13', 'Years combined'), metric('8', 'Projects shipped'), metric('6', 'Industries served'), metric('2', 'Direct engineers'), metric('100%', 'Senior throughout')],
-    note: 'Beirut, Lebanon · EST. 2022',
+    note: 'Beirut, Lebanon · EST. 2026',
   },
   selectedWork: {
     eyebrow: 'Selected Work',
