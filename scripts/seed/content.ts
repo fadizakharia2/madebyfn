@@ -29,6 +29,9 @@ const refs = (ids: string[]) => ids.map((id) => ref(id));
 const unsplash = (id: string, w = 2000, h = 1300) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=90`;
 
+/** Screenshots committed under public/work, served from the public repo so the importer can fetch them. */
+const shot = (path: string) => `https://raw.githubusercontent.com/fadizakharia2/madebyfn/main/public/work/${path}`;
+
 const image = (url: string, alt: string, caption?: string) => ({
   _type: 'imageWithAlt',
   _key: key(),
@@ -182,6 +185,8 @@ const clients: SeedDocument[] = [
   { _id: 'client-pragma', _type: 'client', name: 'Pragma Design', website: 'https://example.com/pragma', industry: ref('industry-design-tools') },
   { _id: 'client-forta', _type: 'client', name: 'Forta Protocol', website: 'https://example.com/forta', industry: ref('industry-web3') },
   { _id: 'client-cadence', _type: 'client', name: 'Cadence Health', website: 'https://example.com/cadence', industry: ref('industry-healthcare') },
+  { _id: 'client-arc-recovery', _type: 'client', name: 'ARC Recovery', website: 'https://arcrecovery.ai', industry: ref('industry-healthcare') },
+  { _id: 'client-thaleon', _type: 'client', name: 'THALÉON', website: 'https://thaleonnutrition.com', industry: ref('industry-commerce') },
 ];
 
 /* ── Developers ─────────────────────────────────────────────────────── */
@@ -576,6 +581,83 @@ const vesselCaseStudy = [
 
 const projects: SeedDocument[] = [
   {
+    _id: 'project-arc-recovery',
+    _type: 'project',
+    name: 'ARC Recovery',
+    slug: { current: 'arc-recovery' },
+    client: ref('client-arc-recovery'),
+    statement: 'Robotic recovery sessions, booked in seconds.',
+    shortDescription: 'Marketing site, booking flow and AI chat assistant for a robotic massage studio in Chicago and Miami.',
+    fullDescription:
+      'The full web presence for ARC Recovery: an Astro site with Zenoti booking for every location, an HSA/FSA savings calculator, a recovery quiz, server-decided promotions and a Claude-powered assistant that answers from the studio’s own knowledge base.',
+    year: '2026',
+    industry: ref('industry-healthcare'),
+    industryLabel: 'Wellness & Recovery',
+    services: refs(['service-product-engineering', 'service-frontend-engineering', 'service-ai-automation']),
+    serviceTags: ['Web Platform', 'Frontend', 'AI Assistant'],
+    technologies: refs([T('astro'), T('typescript'), T('sanity'), T('anthropic'), T('vercel')]),
+    headlineResult: 'Live in Chicago and Miami',
+    role: 'Design implementation, engineering and AI integration',
+    featured: true,
+    order: 1,
+    heroImage: image(shot('arc-recovery/home.jpg'), 'ARC Recovery homepage: personalized recovery sessions, booked in seconds'),
+    mobileHeroImage: image(shot('arc-recovery/mobile.jpg'), 'ARC Recovery homepage on a phone'),
+    gallery: [
+      image(shot('arc-recovery/hsa-calculator.jpg'), 'HSA/FSA calculator showing the real cost per session'),
+      image(shot('arc-recovery/sports-recovery.jpg'), 'Sports recovery landing page'),
+      image(shot('arc-recovery/faq.jpg'), 'Searchable FAQ grouped by topic'),
+    ],
+    challenge:
+      'A new kind of service, robotic massage, needed a site that explains it plainly, gets people booked at the right location and answers the same questions a front desk would, around the clock.',
+    solution:
+      'A static Astro site with one booking chooser for every location, an HSA/FSA calculator, a ten-screen recovery quiz and a chat assistant grounded in an approved knowledge base. Editable copy lives in Sanity.',
+    engineering:
+      'Promotions are decided on the server, never in the browser. The only server code is a handful of routes for chat, sign-ups and webhooks, and Playwright tests drive the chat widget, booking and key flows at three screen widths.',
+    results: 'Live at arcrecovery.ai, serving both cities from one codebase with a self-serve CMS for the owner.',
+    metrics: [metric('2', 'Cities served'), metric('56', 'FAQ answers'), metric('24/7', 'AI assistant')],
+    developers: refs(['developer-fadi-zakharia']),
+    externalLink: 'https://arcrecovery.ai',
+  },
+  {
+    _id: 'project-thaleon',
+    _type: 'project',
+    name: 'THALÉON',
+    slug: { current: 'thaleon' },
+    client: ref('client-thaleon'),
+    statement: 'A Mediterranean wellness brand, launched headless.',
+    shortDescription: 'Headless Shopify storefront and pre-sale for a Mediterranean botanical supplements brand.',
+    fullDescription:
+      'A Next.js storefront on the Shopify Storefront API with a NestJS service for newsletter, reviews and pre-sale reservations. Day and night themes, a five-formulation catalogue and a pre-sale where every price comes from Shopify.',
+    year: '2026',
+    industry: ref('industry-commerce'),
+    industryLabel: 'DTC Wellness Commerce',
+    services: refs(['service-commerce-engineering', 'service-frontend-engineering', 'service-backend-architecture']),
+    serviceTags: ['Commerce Engineering', 'Frontend', 'API Design'],
+    technologies: refs([T('nextjs'), T('react'), T('typescript'), T('nestjs'), T('postgresql'), T('shopify')]),
+    headlineResult: 'Pre-sale launched on Shopify',
+    role: 'Full-stack commerce engineering',
+    featured: true,
+    order: 2,
+    heroImage: image(shot('thaleon/home.jpg'), 'THALÉON storefront homepage with the five formulations'),
+    mobileHeroImage: image(shot('thaleon/mobile.jpg'), 'THALÉON storefront on a phone'),
+    gallery: [
+      image(shot('thaleon/shop.jpg'), 'Collection page with family and form filters'),
+      image(shot('thaleon/product.jpg'), 'Olive Leaf product page with bottle-quantity pricing'),
+      image(shot('thaleon/journal.jpg'), 'Journal: the stories behind the ingredients'),
+      image(shot('thaleon/mobile-product.jpg'), 'Product page on a phone'),
+    ],
+    challenge:
+      'A new supplements brand wanted a storefront that matched a premium photographic design and could open a pre-sale before launch, without duplicating its catalogue or pricing outside Shopify.',
+    solution:
+      'Shopify stays the source of truth for products, prices, cart and checkout, called server-side from Next.js. A NestJS API with PostgreSQL owns only what Shopify does not: newsletter, reviews and reservations, with Klaviyo handling email.',
+    engineering:
+      'Pre-sale figures are always read from Shopify and checkout is withheld unless every line is priced correctly. A local catalogue keeps the storefront fully runnable without Shopify credentials.',
+    results: 'Pre-sale storefront live, with the full post-launch store ready on its own branch.',
+    metrics: [metric('5', 'Formulations'), metric('2', 'Themes'), metric('0', 'Hardcoded prices')],
+    developers: refs(['developer-fadi-zakharia']),
+    externalLink: 'https://thaleonnutrition.com',
+  },
+  {
     _id: 'project-meridian',
     _type: 'project',
     name: 'Meridian',
@@ -595,7 +677,7 @@ const projects: SeedDocument[] = [
     timeline: '14 weeks',
     role: 'Full product engineering',
     featured: true,
-    order: 1,
+    order: 3,
     heroImage: image(unsplash(IMG.meridian), 'Meridian portfolio analytics interface'),
     challenge:
       'Meridian Capital was managing $2.4B in assets across 14 funds using a patchwork of Excel sheets, legacy VBA scripts, and manual reporting workflows. Decision-making was slow. Reporting was days behind.',
@@ -628,7 +710,7 @@ const projects: SeedDocument[] = [
     timeline: '10 weeks',
     role: 'Storefront and checkout engineering',
     featured: true,
-    order: 2,
+    order: 4,
     heroImage: image(unsplash(IMG.vessel), 'Vessel storefront on desktop and mobile'),
     challenge: 'A Shopify theme that had become a bottleneck for merchandising, search and checkout speed.',
     solution: 'Headless storefront with Shopify as system of record, Algolia search and Sanity content.',
@@ -658,7 +740,7 @@ const projects: SeedDocument[] = [
     timeline: '16 weeks',
     role: 'Product engineering and AI integration',
     featured: true,
-    order: 3,
+    order: 5,
     heroImage: image(unsplash(IMG.orbital), 'Orbital sprint planning board'),
     challenge: 'Engineering managers were spending a day a week turning specs into tickets and re-planning sprints by hand.',
     strategy: 'Treat the LLM as a drafting assistant with strict schemas, never as the source of truth.',
@@ -687,7 +769,7 @@ const projects: SeedDocument[] = [
     timeline: '12 weeks',
     role: 'Frontend and Figma platform engineering',
     featured: false,
-    order: 4,
+    order: 6,
     heroImage: image(unsplash(IMG.pragma), 'Pragma component inventory'),
     challenge: 'Design and code drifted apart within weeks of every library release.',
     solution: 'A sync engine over the Figma API that diffs tokens and variants against the published component package.',
@@ -713,7 +795,7 @@ const projects: SeedDocument[] = [
     timeline: '9 weeks',
     role: 'Backend architecture',
     featured: false,
-    order: 5,
+    order: 7,
     heroImage: image(unsplash(IMG.forta), 'Forta event throughput dashboard'),
     challenge: 'Bursty event volume was overwhelming a single-node API during market volatility.',
     solution: 'Partitioned ingestion with Redis streams, backpressure-aware consumers and regional failover on AWS.',
@@ -739,7 +821,7 @@ const projects: SeedDocument[] = [
     timeline: '18 weeks',
     role: 'Mobile engineering and API design',
     featured: false,
-    order: 6,
+    order: 8,
     heroImage: image(unsplash(IMG.cadence), 'Cadence patient app'),
     challenge: 'A clinical pilot needed a patient app that worked in low-connectivity homes and satisfied audit requirements.',
     solution: 'Offline-first sync with conflict resolution, a .NET API with immutable audit logging, and accessibility-first UI.',
@@ -1145,6 +1227,7 @@ const workPage: SeedDocument = {
   intro: 'A selection of projects built with founders, product teams, and growth-stage companies across six industries.',
   industryFilterLabel: 'Industry',
   serviceFilterLabel: 'Service',
+  developerFilterLabel: 'Built by',
   allLabel: 'All',
   emptyMessage: 'No projects match this filter.',
   cta: { heading: 'Ready to be next?', buttonLabel: 'Start a Project' },

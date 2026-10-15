@@ -22,6 +22,7 @@ export const workPage = defineType({
     ...pageHeader.map((f) => ({ ...f, group: 'content' })),
     defineField({ name: 'industryFilterLabel', title: 'Industry filter label', type: 'string', group: 'content', initialValue: 'Industry' }),
     defineField({ name: 'serviceFilterLabel', title: 'Service filter label', type: 'string', group: 'content', initialValue: 'Service' }),
+    defineField({ name: 'developerFilterLabel', title: 'Developer filter label', type: 'string', group: 'content', initialValue: 'Built by' }),
     defineField({ name: 'allLabel', title: '"All" filter label', type: 'string', group: 'content', initialValue: 'All' }),
     defineField({ name: 'emptyMessage', title: 'Empty state message', type: 'string', group: 'content', initialValue: 'No projects match this filter.' }),
     defineField({

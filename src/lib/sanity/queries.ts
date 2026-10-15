@@ -62,6 +62,7 @@ export const PROJECT_CARD = groq`{
   "services": services[]->{ _id, name, "slug": slug.current },
   serviceTags,
   "technologies": technologies[]->{ _id, name },
+  "developers": developers[]->{ _id, name, "slug": slug.current },
   heroImage ${IMAGE},
   mobileHeroImage ${IMAGE}
 }`;
@@ -322,7 +323,7 @@ export const projectBySlugQuery = groq`*[_type == "project" && slug.current == $
 }`;
 
 export const workPageQuery = groq`*[_type == "workPage"][0] {
-  eyebrow, title, intro, industryFilterLabel, serviceFilterLabel, allLabel, emptyMessage, cta, seo ${SEO}
+  eyebrow, title, intro, industryFilterLabel, serviceFilterLabel, developerFilterLabel, allLabel, emptyMessage, cta, seo ${SEO}
 }`;
 
 /* ── Services ───────────────────────────────────────────────────────── */

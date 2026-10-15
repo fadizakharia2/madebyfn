@@ -4,7 +4,7 @@ import ProjectCard from './ProjectCard.astro';
 
 /**
  * Filterable project archive. Filters are rendered server-side from the
- * projects' industries and services; a small script toggles visibility so
+ * projects' industries, services and developers; a small script toggles visibility so
  * the archive works without JavaScript (all projects shown) and filters
  * instantly with it.
  */
@@ -22,6 +22,7 @@ const unique = <T extends { slug?: string | null; name: string }>(items: T[]) =>
 
 const industries = unique(projects.map((p) => p.industry).filter((i): i is NonNullable<typeof i> => Boolean(i)));
 const services = unique(projects.flatMap((p) => p.services ?? []));
+const developers = unique(projects.flatMap((p) => p.developers ?? []));
 const allLabel = page.allLabel || 'All';
 ---
 
@@ -44,6 +45,17 @@ const allLabel = page.allLabel || 'All';
       ))}
     </div>
   </div>
+  {developers.length > 1 && (
+    <div class="work-filters__group">
+      <p class="label work-filters__label" id="filter-developer-label">{page.developerFilterLabel || 'Built by'}</p>
+      <div class="work-filters__chips" role="group" aria-labelledby="filter-developer-label">
+        <button type="button" class="chip" aria-pressed="true" data-filter="developer" data-value="">{allLabel}</button>
+        {developers.map((d) => (
+          <button type="button" class="chip" aria-pressed="false" data-filter="developer" data-value={d.slug}>{d.name}</button>
+        ))}
+      </div>
+    </div>
+  )}
 </div>
 
 <div class="gutter">
@@ -107,7 +119,7 @@ const allLabel = page.allLabel || 'All';
     const empty = document.querySelector<HTMLElement>('[data-work-empty]');
     if (!root || !grid || !empty) return;
 
-    const state = { industry: '', service: '' };
+    const state = { industry: '', service: '', developer: '' };
     const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-work-item]'));
 
     const apply = () => {
@@ -116,7 +128,11 @@ const allLabel = page.allLabel || 'All';
         const card = item.querySelector<HTMLElement>('.pcard');
         const industry = card?.dataset.industry ?? '';
         const services = (card?.dataset.services ?? '').split(' ');
-        const match = (!state.industry || industry === state.industry) && (!state.service || services.includes(state.service));
+        const developers = (card?.dataset.developers ?? '').split(' ');
+        const match =
+          (!state.industry || industry === state.industry) &&
+          (!state.service || services.includes(state.service)) &&
+          (!state.developer || developers.includes(state.developer));
         item.hidden = !match;
         if (match) visible += 1;
       });
@@ -125,7 +141,7 @@ const allLabel = page.allLabel || 'All';
 
     root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((chip) => {
       chip.addEventListener('click', () => {
-        const kind = chip.dataset.filter as 'industry' | 'service';
+        const kind = chip.dataset.filter as keyof typeof state;
         state[kind] = chip.dataset.value ?? '';
         root.querySelectorAll<HTMLButtonElement>(`[data-filter="${kind}"]`).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
         apply();

@@ -18,6 +18,7 @@ const tags = (p.technologies ?? []).slice(0, 3);
   data-cursor="View"
   data-industry={p.industry?.slug ?? ''}
   data-services={(p.services ?? []).map((s) => s.slug).join(' ')}
+  data-developers={(p.developers ?? []).map((d) => d.slug).join(' ')}
   data-year={p.year ?? ''}
   aria-label={`${p.name} — ${p.shortDescription ?? 'case study'}`}
 >

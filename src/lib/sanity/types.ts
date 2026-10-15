@@ -93,6 +93,7 @@ export interface ProjectCard {
   services?: NamedRef[] | null;
   serviceTags?: string[] | null;
   technologies?: NamedRef[] | null;
+  developers?: NamedRef[] | null;
   heroImage?: SanityImage | null;
   mobileHeroImage?: SanityImage | null;
 }
@@ -529,6 +530,7 @@ export interface PageHeader {
 export interface WorkPage extends PageHeader {
   industryFilterLabel?: string | null;
   serviceFilterLabel?: string | null;
+  developerFilterLabel?: string | null;
   allLabel?: string | null;
   emptyMessage?: string | null;
   cta?: { heading?: string | null; buttonLabel?: string | null } | null;
