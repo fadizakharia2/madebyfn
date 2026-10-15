@@ -1181,7 +1181,7 @@ const siteSettings: SeedDocument = {
   footerNavigationLabel: 'Navigation',
   footerDevelopersLabel: 'Developers',
   footerStatusLabel: 'Status',
-  copyrightNote: 'All rights reserved.',
+  copyrightNote: '· All rights reserved.',
   newsletter: {
     enabled: true,
     heading: 'Engineering notes, occasionally.',
