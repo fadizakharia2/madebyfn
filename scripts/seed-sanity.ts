@@ -4,9 +4,14 @@
  * SANITY_API_TOKEN with Editor rights in .env.
  *
  *   npm run sanity:seed
+ *   npm run sanity:seed -- --only=project-arc-recovery,client-arc-recovery
  *
  * Existing documents with the same _id are replaced. Images referenced by
  * `_sanityAsset` markers are downloaded and uploaded as assets first.
+ *
+ * With --only, just the listed documents are replaced; any document they
+ * reference that the dataset lacks is created from the seed, and nothing
+ * else in the dataset is touched. Use it against a live dataset.
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -76,15 +81,42 @@ async function resolveAssets(value: unknown): Promise<unknown> {
   return value;
 }
 
-async function main() {
-  console.log(`Seeding ${seedDocuments.length} documents into ${projectId}/${dataset}…`);
-  const prepared: SeedDocument[] = [];
-  for (const doc of seedDocuments) {
-    prepared.push((await resolveAssets(doc)) as SeedDocument);
+const onlyArg = process.argv.find((arg) => arg.startsWith('--only='));
+const only = onlyArg ? new Set(onlyArg.slice('--only='.length).split(',').filter(Boolean)) : null;
+
+function referencedIds(value: unknown, out = new Set<string>()): Set<string> {
+  if (Array.isArray(value)) value.forEach((v) => referencedIds(v, out));
+  else if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    if (obj._type === 'reference' && typeof obj._ref === 'string') out.add(obj._ref);
+    Object.values(obj).forEach((v) => referencedIds(v, out));
   }
-  // Two passes: create documents without references first is unnecessary
-  // because createOrReplace within one transaction tolerates forward refs.
+  return out;
+}
+
+async function main() {
+  const byId = new Map(seedDocuments.map((doc) => [doc._id, doc]));
+  let replace: SeedDocument[] = seedDocuments;
+  let createMissing: SeedDocument[] = [];
+  if (only) {
+    const unknown = [...only].filter((id) => !byId.has(id));
+    if (unknown.length) throw new Error(`Not in the seed: ${unknown.join(', ')}`);
+    replace = [...only].map((id) => byId.get(id)!);
+    const refs = new Set<string>();
+    replace.forEach((doc) => referencedIds(doc, refs));
+    const wanted = [...refs].filter((id) => !only.has(id) && byId.has(id));
+    const existing = new Set<string>(await client.fetch('*[_id in $ids]._id', { ids: wanted }));
+    createMissing = wanted.filter((id) => !existing.has(id)).map((id) => byId.get(id)!);
+  }
+  console.log(`Seeding ${replace.length} documents into ${projectId}/${dataset}…`);
+  if (createMissing.length) console.log(`Creating missing references: ${createMissing.map((d) => d._id).join(', ')}`);
+  const prepared: SeedDocument[] = [];
+  for (const doc of replace) prepared.push((await resolveAssets(doc)) as SeedDocument);
+  const missing: SeedDocument[] = [];
+  for (const doc of createMissing) missing.push((await resolveAssets(doc)) as SeedDocument);
+  // createOrReplace within one transaction tolerates forward refs.
   const tx = client.transaction();
+  for (const doc of missing) tx.createIfNotExists(doc as SeedDocument & { _id: string; _type: string });
   for (const doc of prepared) tx.createOrReplace(doc as SeedDocument & { _id: string; _type: string });
   await tx.commit();
   console.log('Done. Open the Studio at /admin to review the content.');
