@@ -1248,7 +1248,7 @@ const homepage: SeedDocument = {
     },
   },
   stats: {
-    items: [metric('12+', 'Years combined'), metric('40+', 'Projects shipped'), metric('8', 'Industries served'), metric('2', 'Direct engineers'), metric('100%', 'Senior throughout')],
+    items: [metric('12+', 'Years combined'), metric('8', 'Projects shipped'), metric('6', 'Industries served'), metric('2', 'Direct engineers'), metric('100%', 'Senior throughout')],
     note: 'Beirut, Lebanon · EST. 2022',
   },
   selectedWork: {
