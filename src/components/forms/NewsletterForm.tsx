@@ -77,7 +77,10 @@ export default function NewsletterForm({ placeholder, buttonLabel, successMessag
   }
 
   return (
-    <form className="newsletter" onSubmit={onSubmit} noValidate>
+    <form className="newsletter" action={routes.api.newsletter} method="post" onSubmit={onSubmit} noValidate>
+      {/* Read by the server when the form posts without JavaScript. */}
+      <input type="hidden" name="renderedAt" value={renderedAt.current} suppressHydrationWarning readOnly />
+      <input type="hidden" name="source" value={source} />
       <label htmlFor={`${id}-email`} className="visually-hidden">
         Email address
       </label>

@@ -163,7 +163,7 @@ export default function InquiryForm(props: InquiryFormProps) {
           {label}
           {required && <span className="field-label__required"> *</span>}
         </p>
-        <div className={`tiles tiles--${cols}`}>
+        <div className={`tiles tiles--${cols}`} data-requires-js>
           {options.map((opt) => (
             <button
               key={opt}
@@ -177,6 +177,17 @@ export default function InquiryForm(props: InquiryFormProps) {
             </button>
           ))}
         </div>
+        {/* Without JavaScript the tiles are inert, so offer a plain select. */}
+        <noscript>
+          <select name={key} className="field" aria-labelledby={`${groupId}-label`} required={required} defaultValue="">
+            <option value="">{required ? 'Choose one' : 'No preference'}</option>
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </noscript>
         {error && (
           <p id={`${groupId}-error`} className="field-error" role="alert">
             {error}
@@ -189,7 +200,9 @@ export default function InquiryForm(props: InquiryFormProps) {
   firstErrorRef.current = null;
 
   return (
-    <form className="inquiry" onSubmit={onSubmit} noValidate>
+    <form className="inquiry" action={routes.api.inquiry} method="post" onSubmit={onSubmit} noValidate>
+      {/* Read by the server when the form posts without JavaScript. */}
+      <input type="hidden" name="renderedAt" value={renderedAt.current} suppressHydrationWarning readOnly />
       <div className="inquiry__grid">
         {field('name', 'Name', { placeholder: 'Jane Smith', required: true, autoComplete: 'name' })}
         {field('email', 'Email', { type: 'email', placeholder: 'jane@company.com', required: true, autoComplete: 'email' })}

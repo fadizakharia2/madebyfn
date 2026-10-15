@@ -20,8 +20,8 @@ const email = z
 const antiAbuse = {
   /** Honeypot — must stay empty. */
   website: z.string().max(0, 'Submission rejected.').optional().or(z.literal('')),
-  /** Time the form was rendered; bots submit instantly. */
-  renderedAt: z.number().int().positive().optional(),
+  /** Time the form was rendered; required, and bots submit instantly. */
+  renderedAt: z.number('Submission rejected.').int().positive(),
 };
 
 export const newsletterSchema = z.object({

@@ -89,25 +89,25 @@ export function inquiryNotification(input: InquiryInput, meta: { receivedAt: Dat
   };
 }
 
-/** Confirmation to the person who wrote in. */
-export function inquiryConfirmation(input: InquiryInput, opts: { studioName: string; responseTime: string; fromEmail: string }): InquiryEmail {
-  const firstName = input.name.split(' ')[0] ?? input.name;
+/**
+ * Confirmation to the person who wrote in. The recipient address is not
+ * verified, so this deliberately echoes nothing they submitted (not even
+ * their name): otherwise the form could relay arbitrary text to anyone.
+ */
+export function inquiryConfirmation(opts: { studioName: string; responseTime: string }): InquiryEmail {
   const body =
-    heading(`Thanks, ${firstName}. We've got it.`) +
+    heading(`Thanks, we've got it.`) +
     `<p style="margin:0 0 20px;font-size:15px;line-height:1.75;color:#b8b4ac;">Your inquiry has reached ${escapeHtml(opts.studioName)}. We read every message ourselves and reply with honest thoughts — including whether we're the right fit.</p>` +
-    `<p style="margin:0 0 28px;font-size:15px;line-height:1.75;color:#b8b4ac;">Expected response: <span style="color:#c9a87c;">${escapeHtml(opts.responseTime)}</span>.</p>` +
-    label('What you sent') +
-    `<div style="font-size:14px;line-height:1.7;color:#b8b4ac;background:#111113;border:1px solid rgba(240,237,232,0.07);border-radius:4px;padding:20px;white-space:pre-wrap;">${escapeHtml(input.description)}</div>`;
+    `<p style="margin:0;font-size:15px;line-height:1.75;color:#b8b4ac;">Expected response: <span style="color:#c9a87c;">${escapeHtml(opts.responseTime)}</span>.</p>`;
 
-  const footer = `You are receiving this because you submitted the project form at ${escapeHtml(opts.studioName)}. Questions? Reply to this email.`;
+  const footer = `You are receiving this because this address was used on the project form at ${escapeHtml(opts.studioName)}. If that wasn't you, you can ignore this email. Questions? Reply to it.`;
 
   const text = [
-    `Thanks, ${firstName}. We've got it.`,
+    `Thanks, we've got it.`,
     '',
     `Your inquiry has reached ${opts.studioName}. Expected response: ${opts.responseTime}.`,
     '',
-    'What you sent:',
-    input.description,
+    `If you did not use our project form, you can ignore this email.`,
   ].join('\n');
 
   return { subject: `We received your inquiry — ${opts.studioName}`, html: shell('Inquiry received', body, footer), text };

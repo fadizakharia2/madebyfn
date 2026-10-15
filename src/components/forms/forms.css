@@ -65,6 +65,11 @@ textarea.field {
   overflow: hidden;
 }
 
+/* Hidden when JavaScript is off; a <noscript> control stands in. */
+html:not(.js) [data-requires-js] {
+  display: none;
+}
+
 .form-status {
   display: flex;
   align-items: center;
